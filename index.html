@@ -147,6 +147,22 @@ button.p{background:var(--ac)}button.g{background:#16a34a;border-color:#16a34a}b
 
 .vw select,.vw input{min-width:0;min-height:30px;padding:3px 4px;font-size:12px;width:auto;max-width:110px}
 .vw td:first-child{white-space:nowrap}
+
+/* filler: phone rotate (landscape) => full table, all columns fit */
+@media (orientation:landscape) and (max-width:1000px){
+ .ft{max-height:none!important;overflow-x:auto!important;background:#fff!important;border:1px solid var(--bd)!important;border-radius:12px!important;box-shadow:var(--sh)!important}
+ .ft table{display:table!important;width:100%;border-collapse:collapse;font-size:10.5px}
+ .ft thead,.ft thead.nofilter{display:table-header-group!important;background:#f1f5f9!important;border:0!important;box-shadow:none!important;padding:0!important;border-radius:0!important;grid-template-columns:none!important}
+ .ft thead tr{display:table-row!important}
+ .ft tbody{display:table-row-group!important}
+ .ft tbody tr{display:table-row!important;box-shadow:none!important;border:0!important;border-radius:0!important;padding:0!important}
+ .ft th,.ft td{display:table-cell!important;padding:4px 3px!important;border:0!important;border-bottom:1px solid #edf0f5!important;vertical-align:middle;text-align:left;grid-template-columns:none!important;background:transparent;word-break:break-word}
+ .ft th{position:sticky;top:0;background:#f1f5f9!important;font-size:9.5px;text-transform:uppercase;letter-spacing:.2px;color:#475569;z-index:2;line-height:1.15}
+ .ft td::before{display:none!important}
+ .ft select,.ft input{min-width:0!important;width:100%!important;max-width:64px;min-height:26px!important;padding:2px 2px!important;font-size:10.5px!important}
+ .ft .badge{font-size:9.5px;padding:1px 5px}
+ .wrap{padding:6px}
+}
 </style>
 </head>
 <body>
@@ -350,7 +366,7 @@ function fillerView(card){
   if(frozen) h+='<div class="msg o">Aapka data submit ho chuka hai. Ab sirf dekh sakte hain.</div>';
   if(rows.length){
     h+='<div class="row" style="margin-bottom:8px;flex-wrap:nowrap"><input type="search" placeholder="Search: Site ID / Site Name / Technician" value="'+esc(fq)+'" oninput="filterFiller(this.value)" style="flex:1;min-height:40px;padding:8px 12px;font-size:14px"></div>';
-    h+='<div class="tw"><table><thead class="nofilter"><tr>'+head+'</tr></thead><tbody id="fb">'+body+'</tbody></table></div>';
+    h+='<div class="tw ft"><table><thead class="nofilter"><tr>'+head+'</tr></thead><tbody id="fb">'+body+'</tbody></table></div>';
   } else {
     h+='<div class="msg i">Aapke card par koi site nahi hai.</div>';
   }
