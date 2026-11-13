@@ -217,6 +217,13 @@ button.p{background:var(--ac)}button.g{background:#16a34a;border-color:#16a34a}b
   .vw .vfr th{padding:2px!important}
   .vw .vfr th input{min-height:20px!important;font-size:clamp(7px,2vw,9px)!important;padding:1px 2px!important}
 }
+
+/* grid lines + centered text (admin / filler / viewer) */
+.fit table{border:1px solid #cbd5e1;border-collapse:collapse!important}
+.fit th,.fit td{border:1px solid #cbd5e1!important;text-align:center!important}
+.fit th{background:#eaf0f8!important}
+.fit select,.fit input{text-align:center!important}
+.fit td{vertical-align:middle!important}
 </style>
 </head>
 <body>
@@ -322,6 +329,7 @@ function esc(v){
     return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
   });
 }
+function firstName(t){ return String(t==null?'':t).trim().split(/\s+/)[0]||''; }
 function cellFor(key,s){
   if(key==='req') return s.req==='ok'?'<span class="badge ok">ok</span>':'<span class="badge no">Not OK</span>';
   return esc(s[key]);
@@ -422,7 +430,7 @@ function fillerView(card){
 
   var body=rows.map(function(o){
     var s=o.s, i=o.i, cells='';
-    cols.forEach(function(c){ cells+='<td data-label="'+c[1]+'">'+cellFor(c[0],s)+'</td>'; });
+    cols.forEach(function(c){ var cv=(c[0]==='card')?esc(last4(s.card)):(c[0]==='tech')?esc(firstName(s.tech)):cellFor(c[0],s); cells+='<td data-label="'+c[1]+'">'+cv+'</td>'; });
     dcols.forEach(function(d){
       var v=s.vals[d.label]||'';
       var lab='data-label="'+esc(d.label)+'"';
@@ -441,7 +449,7 @@ function fillerView(card){
     return '<tr data-q="'+esc(dq)+'"'+fa+hide+'>'+cells+'</tr>';
   }).join('');
 
-  var h='<div class="row" style="margin-bottom:10px"><div><b>Card:</b> '+esc(card)+'</div>';
+  var h='<div class="row" style="margin-bottom:10px"><div><b>Card:</b> '+esc(last4(card))+'</div>';
   if(frozen) h+='<span class="badge ok">SUBMITTED - view only</span>';
   h+='<span style="flex:1"></span><button onclick="changePw('+qq(esc(card))+')">Password change</button><button class="d" onclick="logout()">Logout</button></div>';
   if(frozen) h+='<div class="msg o">Aapka data submit ho chuka hai. Ab sirf dekh sakte hain.</div>';
@@ -478,7 +486,7 @@ function viewerBody(){
   });
   var body=rows.map(function(s){
     var c='';
-    VCOLS.forEach(function(b){ c+='<td>'+esc(s[b[0]])+'</td>'; });
+    VCOLS.forEach(function(b){ c+='<td>'+(b[0]==='tech'?esc(firstName(s.tech)):esc(s[b[0]]))+'</td>'; });
     return '<tr>'+c+'</tr>';
   }).join('');
   return {html:body||'<tr><td colspan="5">Koi row nahi</td></tr>',n:rows.length};
@@ -700,7 +708,7 @@ function chAdminPw(){
 }
 function render(err){
   var h=document.getElementById('hdr');
-  h.innerHTML = session ? '<span class="small" style="color:#bbb">'+(session.role==='admin'?'admin':session.role==='viewer'?'Jitendra (View Only)':esc(session.card))+'</span>' : '';
+  h.innerHTML = session ? '<span class="small" style="color:#bbb">'+(session.role==='admin'?'admin':session.role==='viewer'?'Jitendra (View Only)':esc(last4(session.card)))+'</span>' : '';
   var app=document.getElementById('app');
   if(!session){ app.innerHTML=(welcomed||err)?loginView(err):welcomeView(); return; }
   if(session.role==='admin'){ app.innerHTML=adminView(); return; }
