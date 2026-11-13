@@ -163,6 +163,46 @@ button.p{background:var(--ac)}button.g{background:#16a34a;border-color:#16a34a}b
  .ft .badge{font-size:9.5px;padding:1px 5px}
  .wrap{padding:6px}
 }
+
+.fp{background:#fff;border:1px solid var(--bd);border-radius:12px;box-shadow:var(--sh);padding:8px 12px;margin-bottom:10px}
+.fp summary{cursor:pointer;font-weight:600;color:#334155;min-height:28px;display:flex;align-items:center}
+.fg{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin:8px 0}
+.fg label{display:block;font-size:11px;color:#475569;font-weight:600}
+.fg label span{display:block;margin-bottom:2px}
+.fg input,.fg select{width:100%;min-height:36px;padding:6px 8px;font-size:13px}
+@media (max-width:820px){ .fg{grid-template-columns:1fr 1fr} }
+
+/* ===== FIT: no side scroll, everything on one page ===== */
+.fpm{display:none}
+.fit{overflow:visible!important;max-height:none!important}
+.fit table{display:table!important;width:100%!important;table-layout:auto;border-collapse:collapse}
+.fit thead,.fit thead.nofilter{display:table-header-group!important}
+.fit tbody{display:table-row-group!important}
+.fit tr,.fit thead tr{display:table-row!important}
+.fit th,.fit td{display:table-cell!important;word-break:break-word;overflow-wrap:anywhere;white-space:normal!important;vertical-align:middle}
+.fit th{position:sticky;top:54px;z-index:3}
+.fit th input,.fit th select{min-width:0!important;width:100%!important}
+@media (min-width:821px){
+  .fit table{font-size:12.5px}
+  .fit th,.fit td{padding:6px 5px!important}
+  .fit th{font-size:11px}
+  .fit select,.fit input{min-width:0!important;max-width:100%!important}
+}
+@media (max-width:820px){
+  .fpm{display:block}
+  .fit{background:#fff!important;border:1px solid var(--bd)!important;border-radius:10px!important;box-shadow:var(--sh)!important}
+  .fit table{font-size:9px}
+  .fit thead,.fit thead.nofilter{background:#f1f5f9!important;border:0!important;box-shadow:none!important;padding:0!important;border-radius:0!important;grid-template-columns:none!important}
+  .fit tbody tr{box-shadow:none!important;border:0!important;border-radius:0!important;padding:0!important}
+  .fit th,.fit td{padding:3px 2px!important;border:0!important;border-bottom:1px solid #edf0f5!important;grid-template-columns:none!important;text-align:left;font-size:9px;background:transparent}
+  .fit th{top:calc(50px + env(safe-area-inset-top,0px));background:#f1f5f9!important;font-size:7.5px;line-height:1.1;text-transform:uppercase;letter-spacing:0;color:#475569}
+  .fit th .cl{font-size:7.5px;margin:0;white-space:normal}
+  .fit th input,.fit th select{display:none!important}
+  .fit td::before{display:none!important}
+  .fit select,.fit input{width:100%!important;min-width:0!important;max-width:none!important;min-height:22px!important;padding:0 1px!important;font-size:9px!important;border-radius:5px}
+  .fit .badge{font-size:7.5px;padding:0 3px}
+  .wrap{padding:6px}
+}
 </style>
 </head>
 <body>
@@ -321,8 +361,33 @@ function verifyOtp(){
 }
 function logout(){ welcomed=false; fq=''; vq=''; session=null; store.del(SKEY); filters={}; render(); }
 
+function clearFilters(){ filters={}; fq=''; vq=''; render(); }
+function fpanel(items,fn){
+  var act=Object.keys(filters).some(function(k){ return filters[k]; });
+  var h='<details class="fp"'+(act?' open':'')+'><summary>Filters'+(act?' (on)':'')+'</summary><div class="fg">';
+  items.forEach(function(c){
+    var k=c[0];
+    h+='<label><span>'+c[1]+'</span>';
+    if(k==='req') h+='<select onchange="filters.req=this.value;'+fn+'"><option value="">All</option><option value="ok"'+(filters.req==='ok'?' selected':'')+'>ok</option><option value="Not OK"'+(filters.req==='Not OK'?' selected':'')+'>Not OK</option></select>';
+    else if(k==='submitted') h+='<select onchange="filters.submitted=this.value;'+fn+'"><option value="">All</option><option value="1"'+(filters.submitted==='1'?' selected':'')+'>Submitted</option><option value="0"'+(filters.submitted==='0'?' selected':'')+'>Pending</option></select>';
+    else h+='<input value="'+esc(filters[k]||'')+'" oninput="filters['+qq(k)+']=this.value;'+fn+'">';
+    h+='</label>';
+  });
+  h+='</div><button onclick="clearFilters()">Filters clear</button></details>';
+  return h;
+}
 var fq='';
-function filterFiller(v){ fq=v; var q=v.trim().toLowerCase(); var r=document.querySelectorAll('#fb tr'); for(var k=0;k<r.length;k++){ r[k].style.display=(!q||(r[k].getAttribute('data-q')||'').indexOf(q)>-1)?'':'none'; } }
+function filterFiller(v){
+  if(v!==undefined) fq=v;
+  var q=fq.trim().toLowerCase();
+  var r=document.querySelectorAll('#fb tr');
+  for(var k=0;k<r.length;k++){
+    var ok=!q||(r[k].getAttribute('data-q')||'').indexOf(q)>-1;
+    if(ok){ for(var key in filters){ var fv=filters[key]; if(!fv) continue; var cv=r[k].getAttribute('data-f-'+key)||'';
+      if(key==='req'){ if(cv!==fv){ ok=false; break; } } else if(cv.toLowerCase().indexOf(fv.toLowerCase())<0){ ok=false; break; } } }
+    r[k].style.display=ok?'':'none';
+  }
+}
 function fillerView(card){
   var u=db.users[card];
   var rows=db.sites.map(function(s,i){ return {s:s,i:i}; }).filter(function(o){ return o.s.card===card; });
@@ -356,8 +421,10 @@ function fillerView(card){
       cells+='<td data-label="Remark">'+(frozen?esc(s.remark):'<input maxlength="20" value="'+esc(s.remark)+'" oninput="setRemark('+i+',this.value)">')+'</td>';
     }
     var dq=BASECOLS.map(function(c){ return String(s[c[0]]==null?'':s[c[0]]); }).join(' ').toLowerCase();
-    var hide=(fq.trim()&&dq.indexOf(fq.trim().toLowerCase())<0)?' style="display:none"':'';
-    return '<tr data-q="'+esc(dq)+'"'+hide+'>'+cells+'</tr>';
+    var show=matchFilter(s)&&(!fq.trim()||dq.indexOf(fq.trim().toLowerCase())>-1);
+    var hide=show?'':' style="display:none"';
+    var fa=''; BASECOLS.forEach(function(c){ fa+=' data-f-'+c[0]+'="'+esc(String(s[c[0]]==null?'':s[c[0]]))+'"'; });
+    return '<tr data-q="'+esc(dq)+'"'+fa+hide+'>'+cells+'</tr>';
   }).join('');
 
   var h='<div class="row" style="margin-bottom:10px"><div><b>Card:</b> '+esc(card)+'</div>';
@@ -365,8 +432,8 @@ function fillerView(card){
   h+='<span style="flex:1"></span><button onclick="changePw('+qq(esc(card))+')">Password change</button><button class="d" onclick="logout()">Logout</button></div>';
   if(frozen) h+='<div class="msg o">Aapka data submit ho chuka hai. Ab sirf dekh sakte hain.</div>';
   if(rows.length){
-    h+='<div class="row" style="margin-bottom:8px;flex-wrap:nowrap"><input type="search" placeholder="Search: Site ID / Site Name / Technician" value="'+esc(fq)+'" oninput="filterFiller(this.value)" style="flex:1;min-height:40px;padding:8px 12px;font-size:14px"></div>';
-    h+='<div class="tw ft"><table><thead class="nofilter"><tr>'+head+'</tr></thead><tbody id="fb">'+body+'</tbody></table></div>';
+    h+='<div class="row" style="margin-bottom:8px;flex-wrap:nowrap"><input type="search" placeholder="Search: Site ID / Site Name / Technician" value="'+esc(fq)+'" oninput="filterFiller(this.value)" style="flex:1;min-height:40px;padding:8px 12px;font-size:14px"></div>'+fpanel(cols,'filterFiller()');
+    h+='<div class="tw ft fit"><table><thead class="nofilter"><tr>'+head+'</tr></thead><tbody id="fb">'+body+'</tbody></table></div>';
   } else {
     h+='<div class="msg i">Aapke card par koi site nahi hai.</div>';
   }
@@ -391,6 +458,7 @@ var vq='';
 function viewerBody(){
   var q=vq.trim().toLowerCase();
   var rows=db.sites.filter(function(x){
+    if(!matchFilter(x)) return false;
     if(!q) return true;
     return VCOLS.some(function(b){ return String(x[b[0]]==null?'':x[b[0]]).toLowerCase().indexOf(q)>-1; });
   });
@@ -408,8 +476,9 @@ function viewerView(){
   var v=viewerBody();
   return '<div class="row" style="margin-bottom:10px"><b>Stock Overview</b><span style="flex:1"></span><button class="d" onclick="logout()">Logout</button></div>'+
     '<div class="row" style="margin-bottom:8px;flex-wrap:nowrap"><input id="vs" type="search" placeholder="Search: Site ID / Site Name / Technician" value="'+esc(vq)+'" oninput="vq=this.value;refreshViewer()" style="flex:1;min-height:40px;padding:8px 12px;font-size:14px"></div>'+
+    fpanel(VCOLS,'refreshViewer()')+
     '<div class="small" style="margin-bottom:6px">Total rows: <span id="vc">'+v.n+'</span> / <span id="vt">'+db.sites.length+'</span></div>'+
-    '<div class="tw vw"><table><thead>'+head+'</thead><tbody id="vb">'+v.html+'</tbody></table></div>';
+    '<div class="tw vw fit"><table><thead>'+head+'</thead><tbody id="vb">'+v.html+'</tbody></table></div>';
 }
 function refreshViewer(){
   var b=document.getElementById('vb'); if(!b){ render(); return; }
@@ -466,9 +535,15 @@ function dataTab(){
   return '<div class="row" style="margin-bottom:8px"><button class="g" onclick="exportCsv()">Export CSV ('+rows.length+')</button>'+
     '<button onclick="filters={};refreshData()">Filters clear</button>'+
     '<span class="small">Column headers me filter - site id, tech, ok/not ok, status sab par.</span></div>'+
-    '<div class="tw"><table><thead>'+head+'</thead><tbody>'+(body||'<tr><td colspan="14">Koi row nahi</td></tr>')+'</tbody></table></div>';
+    '<div class="fpm">'+fpanel(BASECOLS.concat([['remark','Remark'],['submitted','Status']]),'refreshData()')+'</div>'+
+    '<div class="tw fit"><table><thead>'+head+'</thead><tbody>'+(body||'<tr><td colspan="14">Koi row nahi</td></tr>')+'</tbody></table></div>';
 }
-function refreshData(){ document.getElementById('app').innerHTML=adminView(); }
+function refreshData(){
+  var ae=document.activeElement, idx=-1, pos=0, ins=document.querySelectorAll('#app thead input, #app .fg input');
+  for(var i=0;i<ins.length;i++){ if(ins[i]===ae){ idx=i; pos=ae.selectionStart; } }
+  document.getElementById('app').innerHTML=adminView();
+  if(idx>=0){ var n=document.querySelectorAll('#app thead input, #app .fg input')[idx]; if(n){ n.focus(); try{ n.setSelectionRange(pos,pos); }catch(e){} } }
+}
 function exportCsv(){
   var cols=['ID','Site Name','FS Stock','Card No','SNMP Stock','Diesel Req.','SNMP DG RH','Avg SNMP RH','Tech'].concat(db.dates.map(function(d){return d.label;})).concat(['Remark','Submitted']);
   function q(v){ return '"'+String(v==null?'':v).replace(/"/g,'""')+'"'; }
