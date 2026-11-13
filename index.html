@@ -224,6 +224,22 @@ button.p{background:var(--ac)}button.g{background:#16a34a;border-color:#16a34a}b
 .fit th{background:#eaf0f8!important}
 .fit select,.fit input{text-align:center!important}
 .fit td{vertical-align:middle!important}
+
+/* ===== final tweaks: column dropdown filters, compact text ===== */
+.fit th{position:static!important}
+.fit thead{position:sticky;top:54px;z-index:3;background:#eaf0f8}
+.fit .vfr th,.fit th{vertical-align:middle}
+.fit th input,.fit th select{display:block!important;width:100%!important;min-width:0!important;min-height:24px!important;font-size:11px!important;padding:1px 3px!important;background:#fff;border:1px solid #cfd6e2;border-radius:5px;text-align:center}
+.fit td.k-indus{white-space:nowrap!important}
+.fit td.k-site{font-size:.86em!important}
+.fit td.k-tech{white-space:nowrap!important;font-size:.82em!important}
+.fit td.k-card{white-space:nowrap!important}
+@media (max-width:820px){
+  .fit thead{top:calc(50px + env(safe-area-inset-top,0px))}
+  .fit th input,.fit th select{display:block!important;min-height:20px!important;font-size:8px!important;padding:0 1px!important}
+  .fit th .cl{display:block;margin-bottom:2px}
+  .fit .vfr th{padding:2px!important}
+}
 </style>
 </head>
 <body>
@@ -331,7 +347,7 @@ function esc(v){
 }
 function firstName(t){ return String(t==null?'':t).trim().split(/\s+/)[0]||''; }
 function cellFor(key,s){
-  if(key==='req') return s.req==='ok'?'<span class="badge ok">ok</span>':'<span class="badge no">Not OK</span>';
+  if(key==='req') return s.req==='ok'?'<span class="badge ok">ok</span>':'<span class="badge no">NOK</span>';
   return esc(s[key]);
 }
 var welcomed=false;
@@ -383,6 +399,20 @@ function verifyOtp(){
 }
 function logout(){ welcomed=false; fq=''; vq=''; session=null; store.del(SKEY); filters={}; render(); }
 
+function uvals(sites,key){
+  var seen={},out=[];
+  sites.forEach(function(x){ var v=(key==='tech')?firstName(x.tech):String(x[key]==null?'':x[key]).trim(); if(v&&!seen[v]){ seen[v]=1; out.push(v); } });
+  out.sort(function(a,b){ return a.localeCompare(b,undefined,{numeric:true}); });
+  return out.slice(0,3000);
+}
+function dlists(sites,keys){
+  return keys.filter(function(k){ return k!=='req'; }).map(function(k){
+    return '<datalist id="dl_'+k+'">'+uvals(sites,k).map(function(v){ return '<option value="'+esc(v)+'">'; }).join('')+'</datalist>';
+  }).join('');
+}
+function reqSel(fn){
+  return '<select onchange="filters.req=this.value;'+fn+'"><option value="">All</option><option value="ok"'+(filters.req==='ok'?' selected':'')+'>ok</option><option value="Not OK"'+(filters.req==='Not OK'?' selected':'')+'>NOK</option></select>';
+}
 function clearFilters(){ filters={}; fq=''; vq=''; render(); }
 function fpanel(items,fn){
   var act=Object.keys(filters).some(function(k){ return filters[k]; });
@@ -427,10 +457,17 @@ function fillerView(card){
   cols.forEach(function(c){ head+='<th>'+c[1]+'</th>'; });
   dcols.forEach(function(d){ head+='<th class="date">'+esc(d.label)+'</th>'; });
   if(showRemark) head+='<th>Remark</th>';
+  var head2='';
+  cols.forEach(function(c){
+    head2+= (c[0]==='req') ? '<th>'+reqSel('filterFiller()')+'</th>'
+      : '<th><input list="dl_'+c[0]+'" placeholder="filter" value="'+esc(filters[c[0]]||'')+'" oninput="filters['+qq(c[0])+']=this.value;filterFiller()"></th>';
+  });
+  dcols.forEach(function(){ head2+='<th></th>'; });
+  if(showRemark) head2+='<th></th>';
 
   var body=rows.map(function(o){
     var s=o.s, i=o.i, cells='';
-    cols.forEach(function(c){ var cv=(c[0]==='card')?esc(last4(s.card)):(c[0]==='tech')?esc(firstName(s.tech)):cellFor(c[0],s); cells+='<td data-label="'+c[1]+'">'+cv+'</td>'; });
+    cols.forEach(function(c){ var cv=(c[0]==='card')?esc(last4(s.card)):(c[0]==='tech')?esc(firstName(s.tech)):cellFor(c[0],s); cells+='<td class="k-'+c[0]+'" data-label="'+c[1]+'">'+cv+'</td>'; });
     dcols.forEach(function(d){
       var v=s.vals[d.label]||'';
       var lab='data-label="'+esc(d.label)+'"';
@@ -451,11 +488,11 @@ function fillerView(card){
 
   var h='<div class="row" style="margin-bottom:10px"><div><b>Card:</b> '+esc(last4(card))+'</div>';
   if(frozen) h+='<span class="badge ok">SUBMITTED - view only</span>';
-  h+='<span style="flex:1"></span><button onclick="changePw('+qq(esc(card))+')">Password change</button><button class="d" onclick="logout()">Logout</button></div>';
+  h+='<span style="flex:1"></span><button onclick="clearFilters()">Filters clear</button><button onclick="changePw('+qq(esc(card))+')">Password change</button><button class="d" onclick="logout()">Logout</button></div>';
   if(frozen) h+='<div class="msg o">Aapka data submit ho chuka hai. Ab sirf dekh sakte hain.</div>';
   if(rows.length){
-    h+='<div class="row" style="margin-bottom:8px;flex-wrap:nowrap"><input type="search" placeholder="Search: Site ID / Site Name / Technician" value="'+esc(fq)+'" oninput="filterFiller(this.value)" style="flex:1;min-height:40px;padding:8px 12px;font-size:14px"></div>'+fpanel(cols,'filterFiller()');
-    h+='<div class="tw ft fit"><table><thead class="nofilter"><tr>'+head+'</tr></thead><tbody id="fb">'+body+'</tbody></table></div>';
+    h+=dlists(rows.map(function(o){return o.s;}),cols.map(function(c){return c[0];}));
+    h+='<div class="tw ft fit"><table><thead class="nofilter"><tr>'+head+'</tr><tr class="vfr">'+head2+'</tr></thead><tbody id="fb">'+body+'</tbody></table></div>';
   } else {
     h+='<div class="msg i">Aapke card par koi site nahi hai.</div>';
   }
@@ -486,7 +523,7 @@ function viewerBody(){
   });
   var body=rows.map(function(s){
     var c='';
-    VCOLS.forEach(function(b){ c+='<td>'+(b[0]==='tech'?esc(firstName(s.tech)):esc(s[b[0]]))+'</td>'; });
+    VCOLS.forEach(function(b){ c+='<td class="k-'+b[0]+'">'+(b[0]==='tech'?esc(firstName(s.tech)):esc(s[b[0]]))+'</td>'; });
     return '<tr>'+c+'</tr>';
   }).join('');
   return {html:body||'<tr><td colspan="5">Koi row nahi</td></tr>',n:rows.length};
@@ -495,12 +532,12 @@ function viewerView(){
   var head='<tr>';
   VCOLS.forEach(function(c){ head+='<th>'+c[1]+'</th>'; });
   head+='</tr><tr class="vfr">';
-  VCOLS.forEach(function(c){ head+='<th><input placeholder="filter" value="'+esc(filters[c[0]]||'')+'" oninput="filters['+qq(c[0])+']=this.value;refreshViewer()"></th>'; });
+  VCOLS.forEach(function(c){ head+='<th><input list="dl_'+c[0]+'" placeholder="filter" value="'+esc(filters[c[0]]||'')+'" oninput="filters['+qq(c[0])+']=this.value;refreshViewer()"></th>'; });
   head+='</tr>';
   var v=viewerBody();
   return '<div class="row" style="margin-bottom:10px"><b>Stock Overview</b><span style="flex:1"></span><button class="d" onclick="logout()">Logout</button></div>'+
-    '<div class="row" style="margin-bottom:8px;flex-wrap:nowrap"><input id="vs" type="search" placeholder="Search: Site ID / Site Name / Technician" value="'+esc(vq)+'" oninput="vq=this.value;refreshViewer()" style="flex:1;min-height:40px;padding:8px 12px;font-size:14px"></div>'+
-    '<div class="small" style="margin-bottom:6px">Total rows: <span id="vc">'+v.n+'</span> / <span id="vt">'+db.sites.length+'</span></div>'+
+    dlists(db.sites,VCOLS.map(function(c){return c[0];}))+
+    '<div class="small" style="margin-bottom:6px"><button onclick="clearFilters()" style="min-height:26px;padding:2px 10px;font-size:12px;margin-right:8px">Filters clear</button>Total rows: <span id="vc">'+v.n+'</span> / <span id="vt">'+db.sites.length+'</span></div>'+
     '<div class="tw vw fit"><table><thead>'+head+'</thead><tbody id="vb">'+v.html+'</tbody></table></div>';
 }
 function refreshViewer(){
@@ -530,13 +567,13 @@ function matchFilter(s){
   }
   return true;
 }
-function fInput(col){ return '<input value="'+esc(filters[col]||'')+'" oninput="filters['+qq(col)+']=this.value;refreshData()">'; }
+function fInput(col){ return '<input '+(col==='remark'?'':'list="dl_'+col+'" ')+'value="'+esc(filters[col]||'')+'" oninput="filters['+qq(col)+']=this.value;refreshData()">'; }
 function dataTab(){
   var rows=db.sites.map(function(s,i){ return {s:s,i:i}; }).filter(function(o){ return matchFilter(o.s); });
   var head='<tr>';
   BASECOLS.forEach(function(c){
     if(c[0]==='req'){
-      head+='<th><span class="cl">Diesel req</span><select onchange="filters.req=this.value;refreshData()"><option value="">All</option><option '+(filters.req==='ok'?'selected':'')+'>ok</option><option '+(filters.req==='Not OK'?'selected':'')+'>Not OK</option></select></th>';
+      head+='<th><span class="cl">Diesel Req.</span>'+reqSel('refreshData()')+'</th>';
     } else {
       head+='<th><span class="cl">'+c[1]+'</span>'+fInput(c[0])+'</th>';
     }
@@ -548,7 +585,7 @@ function dataTab(){
 
   var body=rows.map(function(o){
     var s=o.s, c='';
-    BASECOLS.forEach(function(b){ c+='<td data-label="'+b[1]+'">'+cellFor(b[0],s)+'</td>'; });
+    BASECOLS.forEach(function(b){ c+='<td class="k-'+b[0]+'" data-label="'+b[1]+'">'+cellFor(b[0],s)+'</td>'; });
     db.dates.forEach(function(d){ c+='<td class="date" data-label="'+esc(d.label)+'">'+esc(s.vals[d.label]||'')+'</td>'; });
     c+='<td data-label="Remark">'+esc(s.remark)+'</td>';
     c+='<td data-label="Status">'+((db.users[s.card]&&db.users[s.card].submitted)?'<span class="badge ok">Submitted</span>':'<span class="badge">Pending</span>')+'</td>';
@@ -558,7 +595,7 @@ function dataTab(){
   return '<div class="row" style="margin-bottom:8px"><button class="g" onclick="exportCsv()">Export CSV ('+rows.length+')</button>'+
     '<button onclick="filters={};refreshData()">Filters clear</button>'+
     '<span class="small">Column headers me filter - site id, tech, ok/not ok, status sab par.</span></div>'+
-    '<div class="fpm">'+fpanel(BASECOLS.concat([['remark','Remark'],['submitted','Status']]),'refreshData()')+'</div>'+
+    dlists(db.sites,BASECOLS.map(function(c){return c[0];}))+
     '<div class="tw fit"><table><thead>'+head+'</thead><tbody>'+(body||'<tr><td colspan="14">Koi row nahi</td></tr>')+'</tbody></table></div>';
 }
 function refreshData(){
