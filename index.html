@@ -456,7 +456,7 @@ var welcomed=false;
 function welcomeView(){ return vrOneLoginView(); }
 function vrOneLoginView(err){
   var rem=null; try{ rem=JSON.parse(store.get('VR_REMEMBER')||'null'); }catch(e){}
-  return '<div class="vrone-fullpage"><div class="vrone-hero"><h2 class="vr-one-big">VR <span>ONE</span></h2><div class="gold-line"></div><div class="dept-label">Energy Department</div></div>'+
+  return '<div class="vrone-fullpage"><div class="vrone-hero"><h2 class="vr-one-big">VR <span>ONE</span></h2><div class="gold-line"></div><div style="font-size:14px;font-weight:900;letter-spacing:.32em;margin:10px 0 0;animation:deptIn .8s ease both .9s;background:linear-gradient(180deg,#FFE27A 0%,#FFC107 45%,#B8860B 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 6px rgba(0,0,0,.7))">Energy Department</div></div>'+
     (err?'<div style="max-width:480px;margin:0 auto;padding:0 20px"><div class="msg e">'+esc(err)+'</div></div>':'')+
     '<div class="vrone-login"><label>Username</label><input id="u" autocomplete="username" placeholder="Username / Card No" value="'+esc(rem?rem.u:'')+'">'+
     '<label>Password</label><div style="position:relative"><input id="p" type="password" autocomplete="current-password" placeholder="Password" value="'+esc(rem?rem.p:'')+'" style="padding-right:44px"><button class="g-eye" type="button" onclick="togglePw()">👁</button></div>'+
