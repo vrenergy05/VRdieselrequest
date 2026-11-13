@@ -240,6 +240,31 @@ button.p{background:var(--ac)}button.g{background:#16a34a;border-color:#16a34a}b
   .fit th .cl{display:block;margin-bottom:2px}
   .fit .vfr th{padding:2px!important}
 }
+
+/* ===== filler on phone (portrait): clean cards instead of tiny table ===== */
+.mfbar{display:none}
+@media (max-width:600px) and (orientation:portrait){
+  .mfbar{display:flex;gap:8px;position:sticky;top:calc(50px + env(safe-area-inset-top,0px));z-index:6;background:var(--bg);padding:6px 0 8px;margin-bottom:4px}
+  .mfbar input{flex:1;min-width:0;min-height:42px;padding:8px 12px;font-size:14px;border-radius:12px}
+  .mfbar select{width:96px;min-height:42px;font-size:14px;border-radius:12px;padding:0 6px}
+  .ft.fit{background:transparent!important;border:0!important;box-shadow:none!important;padding-bottom:84px}
+  .ft.fit table,.ft.fit tbody{display:block!important;width:100%!important}
+  .ft.fit thead{display:none!important}
+  .ft.fit tbody tr{display:grid!important;grid-template-columns:repeat(4,1fr);gap:8px 6px;background:#fff;border:1px solid var(--bd)!important;border-radius:16px!important;box-shadow:var(--sh)!important;padding:12px!important;margin:0 0 12px}
+  .ft.fit tbody tr[hidden]{display:none!important}
+  .ft.fit tbody tr td{display:block!important;border:0!important;padding:0!important;text-align:left!important;font-size:14px!important;font-weight:600;white-space:normal!important;min-width:0}
+  .ft.fit tbody tr td::before{content:attr(data-label);display:block!important;font-size:10px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.4px;margin-bottom:1px}
+  .ft.fit td.k-indus{order:1;grid-column:1/4;font-size:13px!important;color:#2563eb;white-space:nowrap!important}
+  .ft.fit td.k-req{order:2;grid-column:4/5;text-align:right!important}
+  .ft.fit td.k-site{order:3;grid-column:1/5;font-size:16px!important;font-weight:700;color:#0f172a;padding-bottom:6px!important;border-bottom:1px solid #eef1f6!important}
+  .ft.fit td.k-stock{order:4}.ft.fit td.k-cur{order:5}.ft.fit td.k-hrs{order:6}.ft.fit td.k-avg{order:7}
+  .ft.fit td.k-card{order:8;grid-column:1/3;white-space:nowrap!important}
+  .ft.fit td.k-tech{order:9;grid-column:3/5;font-size:14px!important;white-space:nowrap!important}
+  .ft.fit td.date{order:10;grid-column:span 2;background:#fffbe6;border-radius:10px;padding:6px 8px!important;text-align:left!important}
+  .ft.fit td.k-remark{order:11;grid-column:1/5}
+  .ft.fit td select,.ft.fit td input{display:block!important;width:100%!important;max-width:none!important;min-height:40px!important;font-size:15px!important;padding:4px 8px!important;border-radius:10px;text-align:left!important;margin-top:2px}
+  .ft.fit .badge{font-size:12px;padding:2px 10px}
+}
 </style>
 </head>
 <body>
@@ -382,9 +407,7 @@ function doLogin(){
   }
   if(u.toUpperCase()==='ADMIN'){
     if(p!==db.admin.password) return render('Galat admin password');
-    pendingOtp=String(Math.floor(100000+Math.random()*900000));
-    otpPhone=db.admin.phone.replace(/^(\d{3})\d{6}(\d+)$/,'$1******$2');
-    document.getElementById('app').innerHTML=otpView();
+    session={role:'admin'}; store.set(SKEY,JSON.stringify(session)); render();
     return;
   }
   var card=null;
@@ -437,7 +460,7 @@ function filterFiller(v){
     var ok=!q||(r[k].getAttribute('data-q')||'').indexOf(q)>-1;
     if(ok){ for(var key in filters){ var fv=filters[key]; if(!fv) continue; var cv=r[k].getAttribute('data-f-'+key)||'';
       if(key==='req'){ if(cv!==fv){ ok=false; break; } } else if(cv.toLowerCase().indexOf(fv.toLowerCase())<0){ ok=false; break; } } }
-    r[k].style.display=ok?'':'none';
+    r[k].hidden=!ok;
   }
 }
 function fillerView(card){
@@ -477,11 +500,11 @@ function fillerView(card){
       cells+='<td class="date" '+lab+'><select onchange="setVal('+i+','+qq(esc(d.label))+',this.value)">'+opt+'</select></td>';
     });
     if(showRemark){
-      cells+='<td data-label="Remark">'+(frozen?esc(s.remark):'<input maxlength="20" value="'+esc(s.remark)+'" oninput="setRemark('+i+',this.value)">')+'</td>';
+      cells+='<td class="k-remark" data-label="Remark">'+(frozen?esc(s.remark):'<input maxlength="20" value="'+esc(s.remark)+'" oninput="setRemark('+i+',this.value)">')+'</td>';
     }
     var dq=BASECOLS.map(function(c){ return String(s[c[0]]==null?'':s[c[0]]); }).join(' ').toLowerCase();
     var show=matchFilter(s)&&(!fq.trim()||dq.indexOf(fq.trim().toLowerCase())>-1);
-    var hide=show?'':' style="display:none"';
+    var hide=show?'':' hidden';
     var fa=''; BASECOLS.forEach(function(c){ fa+=' data-f-'+c[0]+'="'+esc(String(s[c[0]]==null?'':s[c[0]]))+'"'; });
     return '<tr data-q="'+esc(dq)+'"'+fa+hide+'>'+cells+'</tr>';
   }).join('');
@@ -492,6 +515,7 @@ function fillerView(card){
   if(frozen) h+='<div class="msg o">Aapka data submit ho chuka hai. Ab sirf dekh sakte hain.</div>';
   if(rows.length){
     h+=dlists(rows.map(function(o){return o.s;}),cols.map(function(c){return c[0];}));
+    h+='<div class="mfbar"><input type="search" placeholder="Search: ID / Site / Tech" value="'+esc(fq)+'" oninput="filterFiller(this.value)">'+reqSel('filterFiller()')+'</div>';
     h+='<div class="tw ft fit"><table><thead class="nofilter"><tr>'+head+'</tr><tr class="vfr">'+head2+'</tr></thead><tbody id="fb">'+body+'</tbody></table></div>';
   } else {
     h+='<div class="msg i">Aapke card par koi site nahi hai.</div>';
@@ -728,8 +752,6 @@ function settingsTab(){
     '<div class="card" style="margin:0;max-width:none"><h2>Admin password</h2><label>Naya password</label><input type="password" id="np" placeholder="........">'+
     '<label>Dobara</label><input type="password" id="np2" placeholder="........">'+
     '<button class="p" style="margin-top:10px" onclick="chAdminPw()">Change</button></div>'+
-    '<div class="card" style="margin:0;max-width:none"><h2>OTP number</h2><input id="ph" value="'+esc(db.admin.phone)+'">'+
-    '<button class="p" style="margin-top:10px" onclick="savePhone()">Save</button></div>'+
     '<div class="card" style="margin:0;max-width:none"><h2>Danger</h2><button class="d" onclick="resetAll()">Reset all data</button></div></div>';
 }
 function savePhone(){ db.admin.phone=document.getElementById('ph').value.trim(); save(); alert('Save ho gaya'); }
