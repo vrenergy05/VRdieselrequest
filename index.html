@@ -108,32 +108,7 @@ label{display:block;margin:9px 0 4px;font-weight:600;font-size:12px}
 .sumtotal{display:flex;justify-content:space-between;font-size:17px;font-weight:900;padding:12px 0 4px}
 .pill{font-size:11px;background:#dcfce7;color:#166534;border-radius:999px;padding:3px 8px;font-weight:700}
 
-
-/* ===== Main Page ONLY - VR ONE photo jaisa ===== */
-.vrone-splash{position:fixed;inset:0;z-index:9999;background:linear-gradient(180deg,#0F0F14 0%,#1C1C22 38%,#D8D0BE 72%,#F5EEDD 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;transition:opacity .5s,visibility .5s;overflow:hidden}
-.vrone-splash.hide{opacity:0;visibility:hidden}
-.vrone-name{font-family:Georgia,'Times New Roman',serif;font-size:64px;font-weight:900;letter-spacing:8px;line-height:1;color:#EDEDED;text-shadow:0 3px 18px rgba(0,0,0,.7);animation:vrDrop 1s cubic-bezier(.2,1.4,.4,1) both}
-.vrone-name span{background:linear-gradient(180deg,#FFE27A 0%,#FFC107 45%,#FF7A00 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 14px rgba(255,170,0,.8))}
-@keyframes vrDrop{0%{opacity:0;transform:translateY(-160px) scale(.9)}55%{opacity:1;transform:translateY(14px) scale(1.02)}70%{transform:translateY(-10px)}85%{transform:translateY(4px)}100%{opacity:1;transform:translateY(0)}}
-.gold-line{width:170px;height:6px;border-radius:99px;background:linear-gradient(90deg,#8A6D1A,#FFD700,#FF8A00,#FFC107,#8A6D1A);margin:14px auto 0;box-shadow:0 0 16px rgba(255,190,0,.9);animation:lineIn .7s ease both .7s}
-@keyframes lineIn{0%{opacity:0;transform:scaleX(.2)}100%{opacity:1;transform:scaleX(1)}}
-.vrone-sub{color:#1C1C22;font-size:15px;font-weight:800;letter-spacing:.32em;margin-top:26px;animation:fadeUp .7s ease both 1s}
-.vrone-tag{display:none}
-@keyframes fadeUp{0%{opacity:0;transform:translateY(14px)}100%{opacity:1;transform:none}}
-.welcome-cream{overflow:hidden;border-radius:18px!important;background:linear-gradient(180deg,#0F0F14 0%,#1C1C22 38%,#D8D0BE 72%,#F5EEDD 100%)!important;color:#1C1C22!important}
-.vr-one-big{font-family:Georgia,'Times New Roman',serif;font-size:56px;font-weight:900;letter-spacing:8px;line-height:1;margin:0;color:#EDEDED;text-shadow:0 3px 18px rgba(0,0,0,.7);animation:vrDrop 1s cubic-bezier(.2,1.4,.4,1) both}
-.vr-one-big span{background:linear-gradient(180deg,#FFE27A 0%,#FFC107 45%,#FF7A00 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 14px rgba(255,170,0,.8))}
-.dept-label{color:#1C1C22;font-size:15px;font-weight:800;letter-spacing:.32em;margin:26px 0 0;animation:fadeUp .7s ease both 1s}
-.login-on-vrone label{color:#1C1C22!important;font-weight:700;font-size:13px;margin:14px 0 6px;text-align:left}
-.login-on-vrone input[type=text],.login-on-vrone input[type=password],.login-on-vrone input:not([type=checkbox]){width:100%!important;background:#FFFFFF!important;border:1.5px solid #B8AE96!important;color:#1C1C22!important;border-radius:10px!important;padding:13px 14px!important;font-size:15px!important;outline:none}
-.login-on-vrone input:focus{border-color:#3B82F6!important;box-shadow:0 0 0 3px rgba(59,130,246,.25)!important}
-.login-on-vrone input::placeholder{color:#8a8372!important}
-.g-eye{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none!important;border:0!important;color:#6b6350!important;font-size:18px;min-height:0!important;padding:4px 6px;cursor:pointer}
-.g-btn{width:100%;background:linear-gradient(90deg,#3B82F6,#2563EB)!important;color:#fff!important;border:0!important;border-radius:10px!important;padding:13px!important;font-size:16px;font-weight:700!important;margin-top:16px}
-.g-forgot{display:block;text-align:right;color:#2563EB!important;font-size:13px;margin-top:10px;cursor:pointer;font-weight:600}
-.g-remember{color:#1C1C22!important;background:transparent!important;border:0!important;padding-left:0!important;font-weight:600!important}
-header{background:linear-gradient(90deg,#17171C,#23232A)!important}
-
+/*MAIN VR ONE*/ .vrone-splash{background:linear-gradient(180deg,#0F0F14 0%,#1C1C22 38%,#D8D0BE 72%,#F5EEDD 100%)!important} .vrone-name{font-family:Georgia,serif;font-size:64px;font-weight:900;letter-spacing:8px;line-height:1;color:#EDEDED!important;animation:vrDrop 1s cubic-bezier(.2,1.4,.4,1) both} .vrone-name span{background:linear-gradient(180deg,#FFE27A,#FFC107 45%,#FF7A00)!important;-webkit-background-clip:text;background-clip:text;color:transparent!important} @keyframes vrDrop{0%{opacity:0;transform:translateY(-160px)}55%{opacity:1;transform:translateY(14px)}100%{opacity:1;transform:none}} .gold-line{width:170px;height:6px;border-radius:99px;background:linear-gradient(90deg,#8A6D1A,#FFD700,#FF8A00,#FFC107);margin:14px auto 0;box-shadow:0 0 16px rgba(255,190,0,.9)} .vrone-sub{color:#1C1C22!important;font-size:15px!important;font-weight:800;letter-spacing:.32em;margin-top:26px} .vrone-tag{display:none} .welcome-cream{background:linear-gradient(180deg,#0F0F14 0%,#1C1C22 38%,#D8D0BE 72%,#F5EEDD 100%)!important;color:#1C1C22!important} .vr-one-big{font-family:Georgia,serif;font-size:56px;font-weight:900;letter-spacing:8px;line-height:1;margin:0;color:#EDEDED;animation:vrDrop 1s cubic-bezier(.2,1.4,.4,1) both} .vr-one-big span{background:linear-gradient(180deg,#FFE27A,#FFC107 45%,#FF7A00);-webkit-background-clip:text;background-clip:text;color:transparent} .dept-label{color:#1C1C22;font-size:15px;font-weight:800;letter-spacing:.32em;margin:26px 0 0} .btn-mainlogin{width:100%;background:linear-gradient(90deg,#3B82F6,#2563EB)!important;color:#fff!important;border:0!important;border-radius:10px!important;padding:14px!important;font-size:17px;font-weight:700!important;margin-top:26px}
 /* ===== Software / App look ===== */
 :root{--bd:#e3e7ee;--dk:#0f172a;--ac:#2563eb;--bg:#eef2f7;--sh:0 1px 3px rgba(15,23,42,.08),0 4px 14px rgba(15,23,42,.05)}
 html{-webkit-text-size-adjust:100%}
@@ -332,7 +307,8 @@ button.p{background:var(--ac)}button.g{background:#16a34a;border-color:#16a34a}b
 }
 </style>
 </head>
-<body><div class="vrone-splash" id="splash"><div class="vrone-name">VR <span>ONE</span></div><div class="gold-line"></div><div class="vrone-sub">Energy Department</div></div><header><b>Energy Department</b><span style="flex:1"></span><button id="inst" style="display:none;min-height:34px;padding:4px 12px" class="p">Install App</button><span id="hdr"></span></header>
+<body><div class="vrone-splash" id="splash"><div class="vrone-name">VR <span>ONE</span></div><div class="gold-line"></div><div class="vrone-sub">Energy Department</div></div>
+<header><b>VR Power Equipment Pvt. Ltd &nbsp;|&nbsp; Diesel</b><span style="flex:1"></span><button id="inst" style="display:none;min-height:34px;padding:4px 12px" class="p">Install App</button><span id="hdr"></span></header>
 <div id="err"></div>
 <div class="wrap" id="app"></div>
 <script>
@@ -477,23 +453,20 @@ function cellFor(key,s){
   return esc(s[key]);
 }
 var welcomed=false;
-function welcomeView(){ return vrOneLoginView(); }
-function vrOneLoginView(err){
-  var rem=null; try{ rem=JSON.parse(store.get('VR_REMEMBER')||'null'); }catch(e){}
-  return '<div class="card vrone-card welcome-cream login-on-vrone"><div style="padding:42px 20px 6px;text-align:center"><h2 class="vr-one-big">VR <span>ONE</span></h2><div class="gold-line"></div><div class="dept-label">Energy Department</div></div>'+
-    (err?'<div class="msg e">'+esc(err)+'</div>':'')+
-    '<div style="padding:6px 20px 22px"><label>Username</label><input id="u" autocomplete="username" placeholder="Username / Card No" value="'+esc(rem?rem.u:'')+'">'+
-    '<label>Password</label><div style="position:relative"><input id="p" type="password" autocomplete="current-password" placeholder="Password" value="'+esc(rem?rem.p:'')+'" style="padding-right:44px"><button class="g-eye" type="button" onclick="togglePw()">👁</button></div>'+
-    '<label class="chk g-remember"><input type="checkbox" id="remember" '+(rem?'checked':'')+'> Save username &amp; password in app</label>'+
-    '<button class="g-btn" onclick="doLogin()">Log in</button>'+
-    '<a class="g-forgot" onclick="forgotPw()">Forgot your password?</a>'+
-    '<div class="small" style="text-align:center;margin-top:12px;color:#6b6350">Default filler password = Last 4 digits of Card No &nbsp;•&nbsp; v1.0</div></div></div>';
+function welcomeView(){
+  return '<div class="card vrone-card welcome-cream"><div style="padding:52px 20px 8px;text-align:center"><h2 class="vr-one-big">VR <span>ONE</span></h2><div class="gold-line"></div><div class="dept-label">Energy Department</div></div><div style="padding:28px 20px 22px;text-align:center"><button class="p btn-mainlogin" onclick="welcomed=true;render()">Login</button><div style="text-align:center;margin-top:14px;color:#5a5240" class="small">v1.0</div></div></div>';
 }
-function togglePw(){ var p=document.getElementById('p'); if(!p) return; p.type=(p.type==='password'?'text':'password'); }
-function forgotPw(){ alert('Default filler password = Last 4 digits of Card No.
-Admin can reset it from Fillers / Passwords.'); }
 
-function loginView(err){ return vrOneLoginView(err); }
+function loginView(err){
+  var rem=null; try{ rem=JSON.parse(store.get('VR_REMEMBER')||'null'); }catch(e){}
+  return '<div class="card vrone-card"><div class="vrone-top"><div class="vrone-logo">⚡</div><h2>VR <span>ONE</span></h2><div style="opacity:.85;font-size:12px">Welcome back • Diesel Filling</div></div>'+
+    (err?'<div class="msg e">'+esc(err)+'</div>':'')+
+    '<label>Username</label><input id="u" autocomplete="username" placeholder="Card No / Username ya ADMIN" value="'+esc(rem?rem.u:'')+'">'+
+    '<label>Password</label><div style="position:relative"><input id="p" type="password" autocomplete="current-password" placeholder="Password" value="'+esc(rem?rem.p:'')+'" style="padding-right:40px"><button type="button" onclick="togglePw()" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:0;font-size:18px;min-height:0;padding:4px">👁</button></div>'+
+    '<label class="chk" style="margin-top:12px"><input type="checkbox" id="remember" '+(rem?'checked':'')+'> Save username &amp; password in app</label>'+
+    '<div style="margin-top:14px"><button class="p" style="width:100%;padding:12px" onclick="doLogin()">Login →</button></div><div class="small" style="text-align:center;margin-top:10px">Default filler password = Card ke last 4 digit</div></div>';
+}
+function togglePw(){ var x=document.getElementById('p'); if(!x) return; x.type=(x.type==='password'?'text':'password'); }
 
 function otpView(err){
   return '<div class="card"><h2>Admin OTP</h2>'+
@@ -505,7 +478,7 @@ function otpView(err){
 }
 function doLogin(){
   var u=document.getElementById('u').value.trim(), p=document.getElementById('p').value;
-  var rem=document.getElementById('remember'); if(rem&&rem.checked){ store.set('VR_REMEMBER',JSON.stringify({u:u,p:p})); } else if(rem){ store.del('VR_REMEMBER'); }
+  var rem=document.getElementById('remember'); if(rem&&rem.checked){ try{ store.set('VR_REMEMBER',JSON.stringify({u:u,p:p})); }catch(e){} }
   if(u.toUpperCase()==='JITENDRA'){
     if(p!=='Jitendra@123') return render('Galat viewer password');
     session={role:'viewer'}; store.set(SKEY,JSON.stringify(session)); render(); return;
