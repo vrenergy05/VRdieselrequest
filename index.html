@@ -185,8 +185,8 @@ function last4(c){ return String(c).slice(-4); }
 function qq(s){ return "'" + s + "'"; }
 var filters={}, adminTab='data', pendingOtp=null, otpPhone='';
 
-var BASECOLS=[['indus','Indus ID'],['site','Site Name'],['stock','Fueler Stock'],['card','Card No'],
-  ['cur','Current Stock'],['req','Diesel req'],['hrs','Total SNMP DG Run Hrs'],['avg','Per Day Avg DG Run Hrs'],['tech','Tech']];
+var BASECOLS=[['indus','ID'],['site','Site Name'],['stock','FS Stock'],['card','Card No'],
+  ['cur','SNMP Stock'],['req','Diesel Req.'],['hrs','SNMP DG RH'],['avg','Avg SNMP RH'],['tech','Tech']];
 var ALLVIS={indus:1,site:1,stock:1,card:1,cur:1,req:1,hrs:1,avg:1,tech:1,remark:1};
 
 var mem={};
@@ -470,7 +470,7 @@ function dataTab(){
 }
 function refreshData(){ document.getElementById('app').innerHTML=adminView(); }
 function exportCsv(){
-  var cols=['Indus ID','Site Name','Fueler Stock','Card No','Current Stock','Diesel requirement','Total SNMP DG Run Hrs','Per Day Avg DG Run Hrs','Tech'].concat(db.dates.map(function(d){return d.label;})).concat(['Remark','Submitted']);
+  var cols=['ID','Site Name','FS Stock','Card No','SNMP Stock','Diesel Req.','SNMP DG RH','Avg SNMP RH','Tech'].concat(db.dates.map(function(d){return d.label;})).concat(['Remark','Submitted']);
   function q(v){ return '"'+String(v==null?'':v).replace(/"/g,'""')+'"'; }
   var lines=[cols.map(q).join(',')];
   db.sites.filter(matchFilter).forEach(function(s){
@@ -482,17 +482,19 @@ function exportCsv(){
   a.download='diesel_data_'+new Date().toISOString().slice(0,10)+'.csv'; a.click();
 }
 function uploadTab(){
-  return '<div class="msg i">CSV columns: Indus ID, Site Name, Fueler Stock, Card No, Current Stock, Diesel requirement, Total SNMP DG Run Hrs, Per Day Avg DG Run Hrs, Tech</div>'+
+  return '<div class="msg i">CSV columns: ID, Site Name, FS Stock, Card No, SNMP Stock, Diesel Req., SNMP DG RH, Avg SNMP RH, Tech</div>'+
     '<div class="row"><input type="file" id="f" accept=".csv" class="grow">'+
     '<label style="display:flex;gap:6px;align-items:center;font-weight:400"><input type="checkbox" id="rep" style="width:auto"> pehle ka data hatao</label>'+
     '<button class="p" onclick="importCsv()">Upload</button></div><div id="upmsg"></div>';
 }
 function parseCsv(t){
   var rows=[], cur=[], cell='', q=false;
+  var fl=t.split(LF)[0]||''; var D=','; var nc=fl.split(',').length, nt=fl.split(String.fromCharCode(9)).length, ns=fl.split(';').length;
+  if(nt>nc&&nt>=ns) D=String.fromCharCode(9); else if(ns>nc) D=';';
   for(var i=0;i<t.length;i++){ var c=t[i];
     if(q){ if(c==='"'){ if(t[i+1]==='"'){cell+='"';i++;} else q=false; } else cell+=c; }
     else if(c==='"') q=true;
-    else if(c===','){ cur.push(cell); cell=''; }
+    else if(c===D){ cur.push(cell); cell=''; }
     else if(c===LF){ cur.push(cell); rows.push(cur); cur=[]; cell=''; }
     else if(c!==CR) cell+=c; }
   if(cell||cur.length){ cur.push(cell); rows.push(cur); }
@@ -504,10 +506,24 @@ function importCsv(){
   var rd=new FileReader();
   rd.onload=function(){
     var rows=parseCsv(rd.result);
-    var hdr=rows.shift().map(function(h){ return h.trim().toLowerCase(); });
-    function ix(n){ for(var i=0;i<hdr.length;i++){ if(hdr[i].indexOf(n)>=0) return i; } return -1; }
-    var m={indus:ix('indus'),site:ix('site'),stock:ix('stock'),card:ix('card'),cur:ix('current'),req:ix('diesel'),hrs:ix('snmp'),avg:ix('avg'),tech:ix('tech')};
-    if(m.indus<0||m.card<0||m.tech<0){ out.innerHTML='<div class="msg e">CSV me Indus ID / Card No / Tech columns chahiye</div>'; return; }
+    var hdr=rows.shift().map(function(h){ return h.toLowerCase().replace(/[^a-z0-9]/g,''); });
+    function ix(al,fb){
+      for(var k=0;k<al.length;k++){ var p=hdr.indexOf(al[k]); if(p>=0) return p; }
+      if(fb){ for(var i=0;i<hdr.length;i++){ if(fb(hdr[i])) return i; } }
+      return -1;
+    }
+    var m={
+      indus:ix(['id','indusid','siteid']),
+      site:ix(['sitename','site'],function(h){return h.indexOf('site')>=0;}),
+      stock:ix(['fsstock','fuelerstock','fuelsensorstock'],function(h){return h.indexOf('fs')===0||h.indexOf('fuel')>=0;}),
+      card:ix(['cardno','card'],function(h){return h.indexOf('card')>=0;}),
+      cur:ix(['snmpstock','currentstock'],function(h){return h.indexOf('current')>=0;}),
+      req:ix(['dieselreq','dieselrequirement'],function(h){return h.indexOf('diesel')>=0;}),
+      hrs:ix(['snmpdgrh','totalsnmpdgrunhrs'],function(h){return h.indexOf('dg')>=0&&h.indexOf('avg')<0&&h.indexOf('perday')<0;}),
+      avg:ix(['avgsnmprh','avgsnmprs','perdayavgdgrunhrs'],function(h){return h.indexOf('avg')>=0;}),
+      tech:ix(['tech','technician','technicianname'],function(h){return h.indexOf('tech')>=0;})
+    };
+    if(m.indus<0||m.card<0||m.tech<0){ out.innerHTML='<div class="msg e">CSV me ID / Card No / Tech columns chahiye</div>'; return; }
     if(document.getElementById('rep').checked){ db.sites=[]; db.users={}; }
     var n=0;
     rows.forEach(function(r){
