@@ -281,7 +281,7 @@ function load(){
 var db=load();
 var session=null;
 try{ session=JSON.parse(store.get(SKEY)||'null'); }catch(e){}
-var DB_URL='';  /* <-- yahan Firebase Realtime Database ka URL paste karein, jaise https://vrpower-diesel-default-rtdb.firebaseio.com */
+var DB_URL='https://vrpower-diesel-default-rtdb.asia-southeast1.firebasedatabase.app';  /* <-- yahan Firebase Realtime Database ka URL paste karein, jaise https://vrpower-diesel-default-rtdb.firebaseio.com */
 var pending=0, lastRemote=null;
 function remotePut(path,v){
   if(!DB_URL) return;
