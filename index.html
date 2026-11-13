@@ -352,7 +352,7 @@ var store={
 
 
 function fmtStockDate(iso){ if(!iso) return ''; var m={'01':'Jan','02':'Feb','03':'Mar','04':'Apr','05':'May','06':'Jun','07':'Jul','08':'Aug','09':'Sep','10':'Oct','11':'Nov','12':'Dec'}; var a=String(iso).split('-'); if(a.length===3) return a[2]+'-'+(m[a[1]]||a[1])+'-'+a[0]; return iso; }
-function stockBanner(){ if(!db.stockDate) return ''; return '<div class="stockbar"><span>📅 Stock Date: '+esc(fmtStockDate(db.stockDate))+'</span></div>'; }
+function stockBanner(){ if(session && session.role==='filler') return ''; if(!db.stockDate) return ''; return '<div class="stockbar"><span>📅 Stock Date: '+esc(fmtStockDate(db.stockDate))+'</span></div>'; }
 function techSummary(card){
   var map={}, total=0, filled=0;
   db.sites.filter(function(s){return s.card===card;}).forEach(function(s){
@@ -592,7 +592,7 @@ function fillerView(card){
   var h=stockBanner()+'<div class="row" style="margin-bottom:10px"><div><b>Card:</b> '+esc(cardDisp(card))+'</div>';
   if(frozen) h+='<span class="badge ok">SUBMITTED - view only</span>';
   h+='<span style="flex:1"></span><button onclick="clearFilters()">Filters clear</button><button onclick="changePw('+qq(esc(card))+')">Password change</button><button class="d" onclick="logout()">Logout</button></div>';
-  if(frozen) h+='<div class="msg o">Aapka data submit ho chuka hai. Aaj ke liye locked hai. 🔒</div>';
+  if(frozen) h+='<div class="msg o">Your data is submitted. Locked for today. 🔒</div>';
   h+='<div class="row" style="margin-bottom:10px"><span class="pill">Technician-wise Total: '+_ts.total+' L</span><span class="pill">Filled: '+_ts.filled+' entries</span></div>';
   if(rows.length){
     h+=dlists(rows.map(function(o){return o.s;}),cols.map(function(c){return c[0];}));
