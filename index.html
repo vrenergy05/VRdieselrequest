@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>VR Power Equipment Pvt. Ltd | Diesel</title>
+<title>VR One | VR Power Diesel</title>
 <style>
 :root{--bd:#d8d8d8;--hl:#ffe000;--dk:#111;--ac:#0b6efd}
 *{box-sizing:border-box}
@@ -85,6 +85,56 @@ label{display:block;margin:9px 0 4px;font-weight:600;font-size:12px}
   .tabs button{padding:6px 9px;font-size:12px}
   .row .grow{min-width:120px}
 }
+
+
+/* ===== VR ONE modern ===== */
+.vrone-splash{position:fixed;inset:0;z-index:9999;background:radial-gradient(900px 500px at 50% -10%,#1e3a8a,transparent),linear-gradient(160deg,#050816,#0f172a 55%,#0b3b2e);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;transition:opacity .45s,visibility .45s}
+.vrone-splash.hide{opacity:0;visibility:hidden}
+.vrone-logo{width:92px;height:92px;border-radius:28px;background:linear-gradient(135deg,#facc15,#f97316);display:flex;align-items:center;justify-content:center;font-size:46px;box-shadow:0 18px 50px rgba(249,115,22,.45)}
+.vrone-name{font-size:44px;font-weight:900;letter-spacing:2px;line-height:1}
+.vrone-name span{color:#facc15}
+.vrone-sub{color:#cbd5e1;font-size:14px;letter-spacing:.18em;text-transform:uppercase}
+.vrone-tag{margin-top:14px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);padding:7px 14px;border-radius:999px;font-size:12px}
+.vrone-card{overflow:hidden;border-radius:18px!important;box-shadow:0 18px 45px rgba(2,6,23,.18)!important}
+.vrone-top{background:linear-gradient(135deg,#0f172a,#1e3a8a 60%,#0b6b3a);color:#fff;margin:-16px -16px 16px;padding:22px 18px 18px;text-align:center}
+.vrone-top .vrone-logo{width:58px;height:58px;border-radius:16px;font-size:28px;margin:0 auto 8px}
+.vrone-top h2{margin:0;font-size:26px;letter-spacing:1px}
+.vrone-top h2 span{color:#facc15}
+.stockbar{position:sticky;top:52px;z-index:15;background:linear-gradient(90deg,#fef3c7,#fde68a);border:1px solid #f59e0b;border-radius:12px;padding:9px 12px;display:flex;gap:10px;align-items:center;justify-content:space-between;font-weight:800;margin-bottom:12px;box-shadow:0 4px 14px rgba(245,158,11,.18)}
+.stockbar small{font-weight:600;color:#92400e}
+.modal-bg{position:fixed;inset:0;background:rgba(2,6,23,.65);z-index:9998;display:flex;align-items:flex-end;justify-content:center;padding:12px}
+.modal{background:#fff;width:100%;max-width:480px;border-radius:18px 18px 10px 10px;padding:18px;max-height:85vh;overflow:auto}
+.sumrow{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px dashed #e2e8f0}
+.sumtotal{display:flex;justify-content:space-between;font-size:17px;font-weight:900;padding:12px 0 4px}
+.pill{font-size:11px;background:#dcfce7;color:#166534;border-radius:999px;padding:3px 8px;font-weight:700}
+
+
+/* ===== VR ONE v2 ===== */
+.vrone-splash{position:fixed;inset:0;z-index:9999;background:linear-gradient(180deg,#0F0F14 0%,#1C1C22 38%,#D8D0BE 72%,#F5EEDD 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;transition:opacity .5s,visibility .5s;overflow:hidden}
+.vrone-splash.hide{opacity:0;visibility:hidden}
+.vrone-name{font-family:Georgia,'Times New Roman',serif;font-size:64px;font-weight:900;letter-spacing:8px;line-height:1;color:#EDEDED;text-shadow:0 3px 18px rgba(0,0,0,.7);animation:vrDrop 1s cubic-bezier(.2,1.4,.4,1) both}
+.vrone-name span{background:linear-gradient(180deg,#FFE27A 0%,#FFC107 45%,#FF7A00 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 14px rgba(255,170,0,.8))}
+@keyframes vrDrop{0%{opacity:0;transform:translateY(-160px) scale(.9)}55%{opacity:1;transform:translateY(14px) scale(1.02)}70%{transform:translateY(-10px)}85%{transform:translateY(4px)}100%{opacity:1;transform:translateY(0)}}
+.gold-line{width:170px;height:6px;border-radius:99px;background:linear-gradient(90deg,#8A6D1A,#FFD700,#FF8A00,#FFC107,#8A6D1A);margin:14px auto 0;box-shadow:0 0 16px rgba(255,190,0,.9);animation:lineIn .7s ease both .7s}
+@keyframes lineIn{0%{opacity:0;transform:scaleX(.2)}100%{opacity:1;transform:scaleX(1)}}
+.vrone-sub{color:#1C1C22;font-size:15px;font-weight:800;letter-spacing:.32em;margin-top:26px;animation:fadeUp .7s ease both 1s}
+.vrone-tag{display:none}
+@keyframes fadeUp{0%{opacity:0;transform:translateY(14px)}100%{opacity:1;transform:none}}
+.welcome-cream{overflow:hidden;border-radius:18px!important;background:linear-gradient(180deg,#0F0F14 0%,#1C1C22 38%,#D8D0BE 72%,#F5EEDD 100%)!important;color:#1C1C22!important}
+.vr-one-big{font-family:Georgia,'Times New Roman',serif;font-size:56px;font-weight:900;letter-spacing:8px;line-height:1;margin:0;color:#EDEDED;text-shadow:0 3px 18px rgba(0,0,0,.7);animation:vrDrop 1s cubic-bezier(.2,1.4,.4,1) both}
+.vr-one-big span{background:linear-gradient(180deg,#FFE27A 0%,#FFC107 45%,#FF7A00 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 14px rgba(255,170,0,.8))}
+.dept-label{color:#1C1C22;font-size:15px;font-weight:800;letter-spacing:.32em;margin:26px 0 0;animation:fadeUp .7s ease both 1s}
+.btn-white{background:#17171C!important;color:#FFFFFF!important;border-color:#17171C!important;box-shadow:0 10px 22px rgba(0,0,0,.35)!important;font-weight:800!important}
+header{background:linear-gradient(90deg,#17171C,#23232A)!important}
+.login-grafana{overflow:hidden;border-radius:20px!important;background:linear-gradient(180deg,#14101E 0%,#1A1626 55%,#0F0F14 100%)!important;color:#fff!important;padding:36px 26px 28px!important;max-width:420px!important}
+.login-grafana label{color:#fff!important;font-size:13px;font-weight:600;margin:16px 0 6px}
+.g-input{width:100%!important;background:#0B0B10!important;border:1.5px solid #333344!important;color:#fff!important;border-radius:10px!important;padding:13px 14px!important;font-size:15px!important;outline:none}
+.g-input:focus{border-color:#3B82F6!important;box-shadow:0 0 0 3px rgba(59,130,246,.35)!important}
+.g-input::placeholder{color:#8b8b9e!important}
+.g-eye{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none!important;border:0!important;color:#bbb!important;font-size:18px;min-height:0!important;padding:4px 6px;cursor:pointer}
+.g-btn{width:100%;background:linear-gradient(90deg,#3B82F6,#2563EB)!important;color:#fff!important;border:0!important;border-radius:10px!important;padding:13px!important;font-size:16px;font-weight:700!important;margin-top:18px}
+.g-forgot{display:block;text-align:right;color:#5B9DFF!important;font-size:13px;margin-top:10px;cursor:pointer}
+.g-remember{color:#ddd!important;background:transparent!important;border:0!important;padding-left:0!important;font-weight:400!important}
 
 /* ===== Software / App look ===== */
 :root{--bd:#e3e7ee;--dk:#0f172a;--ac:#2563eb;--bg:#eef2f7;--sh:0 1px 3px rgba(15,23,42,.08),0 4px 14px rgba(15,23,42,.05)}
@@ -284,8 +334,7 @@ button.p{background:var(--ac)}button.g{background:#16a34a;border-color:#16a34a}b
 }
 </style>
 </head>
-<body>
-<header><b>VR Power Equipment Pvt. Ltd &nbsp;|&nbsp; Diesel</b><span style="flex:1"></span><button id="inst" style="display:none;min-height:34px;padding:4px 12px" class="p">Install App</button><span id="hdr"></span></header>
+<body><div class="vrone-splash" id="splash"><div class="vrone-name">VR <span>ONE</span></div><div class="gold-line"></div><div class="vrone-sub">Energy Department</div></div><script>if("serviceWorker" in navigator){ navigator.serviceWorker.getRegistrations().then(function(rs){ rs.forEach(function(r){ r.unregister(); }); }); } if("caches" in window){ caches.keys().then(function(ks){ ks.forEach(function(k){ caches.delete(k); }); }); }</script><header><b>Energy Department</b><span style="flex:1"></span><button id="inst" style="display:none;min-height:34px;padding:4px 12px" class="p">Install App</button><span id="hdr"></span></header>
 <div id="err"></div>
 <div class="wrap" id="app"></div>
 <script>
@@ -327,6 +376,28 @@ var store={
   del:function(k){ try{ localStorage.removeItem(k); }catch(e){ delete mem[k]; } }
 };
 
+
+function fmtStockDate(iso){ if(!iso) return ''; var m={'01':'Jan','02':'Feb','03':'Mar','04':'Apr','05':'May','06':'Jun','07':'Jul','08':'Aug','09':'Sep','10':'Oct','11':'Nov','12':'Dec'}; var a=String(iso).split('-'); if(a.length===3) return a[2]+'-'+(m[a[1]]||a[1])+'-'+a[0]; return iso; }
+function stockBanner(){ if(!db.stockDate) return ''; return '<div class="stockbar"><span>📅 Stock Date: '+esc(fmtStockDate(db.stockDate))+'</span><small>Isi date ka data bhar rahe hain • Old / gap data nahi</small></div>'; }
+function techSummary(card){
+  var map={}, total=0, filled=0;
+  db.sites.filter(function(s){return s.card===card;}).forEach(function(s){
+    var k=firstName(s.tech)||'Technician';
+    if(!map[k]) map[k]={qty:0,sites:0,filled:0};
+    map[k].sites++;
+    db.dates.forEach(function(d){ if(!d.vis) return; var v=parseFloat(s.vals[d.label]); if(!isNaN(v)&&v>0){ map[k].qty+=v; map[k].filled++; filled++; } });
+    total+=map[k].qty;
+  });
+  var rows=Object.keys(map).sort().map(function(k){ return '<div class="sumrow"><span>👨‍🔧 '+esc(k)+' <small style="color:#64748b">• '+map[k].filled+' entry / '+map[k].sites+' sites</small></span><b>'+map[k].qty+' L</b></div>'; }).join('');
+  return {html:rows||'<div class="msg i">Abhi koi qty select nahi ki hai.</div>', total:total, filled:filled};
+}
+function openSubmitModal(){
+  var s=techSummary(session.card);
+  var m='<div class="modal-bg" id="submitModal"><div class="modal"><h2 style="margin:0 0 4px">Are you sure to Submit?</h2><p class="small" style="margin:0 0 10px">Submit ke baad aaj ke liye lock ho jayega. Edit nahi hoga.</p>'+stockBanner()+s.html+'<div class="sumtotal"><span>Total Diesel Qty</span><span>'+s.total+' L</span></div><div class="row" style="margin-top:14px"><button style="flex:1" onclick="closeSubmitModal()">Cancel</button><button class="g" style="flex:1" onclick="confirmSubmit()">✅ Yes, Submit &amp; Lock for the Day</button></div></div></div>';
+  document.body.insertAdjacentHTML('beforeend', m);
+}
+function closeSubmitModal(){ var e=document.getElementById('submitModal'); if(e) e.remove(); }
+function confirmSubmit(){ closeSubmitModal(); db.users[session.card].submitted=true; store.set(KEY,JSON.stringify(db)); remotePut('users/'+encodeURIComponent(session.card)+'/submitted',true); render(); }
 function seed(){
   var raw=[
     ['IN-1016864','Prakash Nagar',27,'OTCINDUSRAJ15',55,'ok',8.5,0.24,'Kanahya lal Gupta'],
@@ -339,7 +410,7 @@ function seed(){
   var sites=raw.map(function(a){
     return {indus:a[0],site:a[1],stock:a[2],card:a[3],cur:a[4],req:a[5],hrs:a[6],avg:a[7],tech:a[8],vals:{},remark:''};
   });
-  return {admin:{password:'Admin@123',phone:'9649990010'},
+  return {stockDate:'2026-11-13',admin:{password:'Admin@123',phone:'9649990010'},
     vis:JSON.parse(JSON.stringify(ALLVIS)),
     dates:[{label:'12-N',editable:true,vis:true},{label:'13-N',editable:true,vis:true},{label:'14-N',editable:false,vis:true}],
     sites:sites, users:{}};
@@ -349,6 +420,7 @@ function load(){
   try{ d=JSON.parse(store.get(KEY)); }catch(e){}
   if(!d||!d.sites){ d=seed(); }
   d.users=d.users||{};
+  if(!d.stockDate) d.stockDate='2026-11-13';
   if(!d.vis){ d.vis=JSON.parse(JSON.stringify(ALLVIS)); }
   (d.dates||[]).forEach(function(x){ if(x.vis===undefined) x.vis=true; });
   d.sites.forEach(function(s){ if(!d.users[s.card]) d.users[s.card]={password:last4(s.card),mustChange:true,submitted:false}; });
@@ -369,7 +441,8 @@ function remotePut(path,v){
 function norm(d){
   d.sites=(d.sites||[]).filter(function(x){return x;});
   d.sites.forEach(function(x){ x.vals=x.vals||{}; if(x.remark==null) x.remark=''; });
-  d.users=d.users||{}; d.dates=d.dates||[];
+  d.users=d.users||{};
+  if(!d.stockDate) d.stockDate='2026-11-13'; d.dates=d.dates||[];
   d.dates.forEach(function(x){ if(x.vis===undefined) x.vis=true; });
   if(!d.vis) d.vis=JSON.parse(JSON.stringify(ALLVIS));
   return d;
@@ -407,20 +480,23 @@ function cellFor(key,s){
 }
 var welcomed=false;
 function welcomeView(){
-  return '<div class="card" style="text-align:center;padding:30px 22px">'+
-    '<div style="width:72px;height:72px;margin:0 auto 14px;border-radius:20px;background:linear-gradient(135deg,#2563eb,#1e3a8a);color:#fff;font-size:36px;display:flex;align-items:center;justify-content:center">&#9981;</div>'+
-    '<h2 style="font-size:22px;margin-bottom:6px">Welcome</h2>'+
-    '<div style="font-weight:700;font-size:16px">VR Power Equipment Pvt. Ltd</div><div class="small" style="margin-top:2px;font-size:14px">Diesel</div>'+
-    '<div style="height:20px"></div>'+
-    '<button class="p" style="width:100%;font-size:16px" onclick="welcomed=true;render()">Enter / Login</button></div>';
+  return '<div class="card vrone-card welcome-cream"><div style="padding:52px 20px 8px;text-align:center"><h2 class="vr-one-big">VR <span>ONE</span></h2><div class="gold-line"></div></div><div style="padding:28px 20px 22px;text-align:center"><div class="dept-label">Energy Department</div><button class="p btn-white" style="width:100%;font-size:17px;padding:14px;margin-top:26px" onclick="welcomed=true;render()">Login</button><div style="text-align:center;margin-top:14px;color:#5a5240" class="small">v1.0</div></div></div>';
 }
+
 function loginView(err){
-  return '<div class="card"><h2>Login</h2>'+
+  var rem=null; try{ rem=JSON.parse(store.get('VR_REMEMBER')||'null'); }catch(e){}
+  return '<div class="card login-grafana"><div style="text-align:center"><h2 class="vr-one-big" style="font-size:42px">VR <span>ONE</span></h2><div class="gold-line" style="width:130px"></div><div style="color:#CFCFE0;font-size:12px;letter-spacing:.3em;margin-top:12px;font-weight:700">Energy Department</div><h2 style="color:#fff;font-size:26px;font-weight:500;margin:26px 0 6px">Welcome to VR ONE</h2></div>'+
     (err?'<div class="msg e">'+esc(err)+'</div>':'')+
-    '<label>Username</label><input id="u" autocomplete="username" placeholder="Card No ya ADMIN">'+
-    '<label>Password</label><input id="p" type="password" autocomplete="current-password" placeholder="Password">'+
-    '<div style="margin-top:14px"><button class="p" style="width:100%" onclick="doLogin()">Login</button></div></div>';
+    '<label>Email or username</label><input class="g-input" id="u" autocomplete="username" placeholder="email or username" value="'+esc(rem?rem.u:'')+'">'+
+    '<label>Password</label><div style="position:relative"><input class="g-input" id="p" type="password" autocomplete="current-password" placeholder="password" value="'+esc(rem?rem.p:'')+'" style="padding-right:44px"><button class="g-eye" onclick="togglePw()">👁</button></div>'+
+    '<label class="chk g-remember"><input type="checkbox" id="remember" '+(rem?'checked':'')+'> Remember me</label>'+
+    '<button class="g-btn" onclick="doLogin()">Log in</button>'+
+    '<a class="g-forgot" onclick="forgotPw()">Forgot your password?</a>'+
+    '<div class="small" style="text-align:center;margin-top:14px;color:#8b8b9e">Default filler password = Last 4 digits of Card No</div></div>';
 }
+function togglePw(){ var p=document.getElementById('p'); if(!p) return; p.type=(p.type==='password'?'text':'password'); }
+function forgotPw(){ alert('Default filler password = Last 4 digits of Card No.
+Admin can reset it from Fillers / Passwords.'); }
 function otpView(err){
   return '<div class="card"><h2>Admin OTP</h2>'+
     (err?'<div class="msg e">'+esc(err)+'</div>':'')+
@@ -539,10 +615,12 @@ function fillerView(card){
     return '<tr data-q="'+esc(dq)+'"'+fa+hide+'>'+cells+'</tr>';
   }).join('');
 
-  var h='<div class="row" style="margin-bottom:10px"><div><b>Card:</b> '+esc(cardDisp(card))+'</div>';
+  var _ts=techSummary(card);
+  var h=stockBanner()+'<div class="row" style="margin-bottom:10px"><div><b>Card:</b> '+esc(cardDisp(card))+'</div>';
   if(frozen) h+='<span class="badge ok">SUBMITTED - view only</span>';
   h+='<span style="flex:1"></span><button onclick="clearFilters()">Filters clear</button><button onclick="changePw('+qq(esc(card))+')">Password change</button><button class="d" onclick="logout()">Logout</button></div>';
-  if(frozen) h+='<div class="msg o">Aapka data submit ho chuka hai. Ab sirf dekh sakte hain.</div>';
+  if(frozen) h+='<div class="msg o">Aapka data submit ho chuka hai. Aaj ke liye locked hai. 🔒</div>';
+  h+='<div class="row" style="margin-bottom:10px"><span class="pill">Technician-wise Total: '+_ts.total+' L</span><span class="pill">Filled: '+_ts.filled+' entries</span></div>';
   if(rows.length){
     h+=dlists(rows.map(function(o){return o.s;}),cols.map(function(c){return c[0];}));
     h+='<div class="mfbar"><input type="search" placeholder="Search: ID / Site / Tech" value="'+esc(fq)+'" oninput="filterFiller(this.value)">'+reqSel('filterFiller()')+'</div>';
@@ -550,12 +628,12 @@ function fillerView(card){
   } else {
     h+='<div class="msg i">Aapke card par koi site nahi hai.</div>';
   }
-  if(!frozen) h+='<div class="sticky-submit"><button class="g" onclick="submitAll()">Submit (ek baar - baad me freeze)</button></div>';
+  if(!frozen) h+='<div class="sticky-submit"><button class="g" onclick="openSubmitModal()">Submit &amp; Lock for the Day →</button></div>';
   return h;
 }
 function setVal(i,label,v){ db.sites[i].vals[label]=v; store.set(KEY,JSON.stringify(db)); remotePut('sites/'+i+'/vals/'+encodeURIComponent(label),v); }
 function setRemark(i,v){ db.sites[i].remark=String(v).slice(0,20); store.set(KEY,JSON.stringify(db)); remotePut('sites/'+i+'/remark',db.sites[i].remark); }
-function submitAll(){
+function submitAll(){ openSubmitModal(); return;
   if(!confirm('Submit ke baad edit nahi kar payenge. Pakka?')) return;
   db.users[session.card].submitted=true; store.set(KEY,JSON.stringify(db)); remotePut('users/'+encodeURIComponent(session.card)+'/submitted',true); render();
 }
@@ -589,7 +667,7 @@ function viewerView(){
   VCOLS.forEach(function(c){ head+='<th><input list="dl_'+c[0]+'" placeholder="filter" value="'+esc(filters[c[0]]||'')+'" oninput="filters['+qq(c[0])+']=this.value;refreshViewer()"></th>'; });
   head+='</tr>';
   var v=viewerBody();
-  return '<div class="row" style="margin-bottom:10px"><b>Stock Overview</b><span style="flex:1"></span><button class="d" onclick="logout()">Logout</button></div>'+
+  return stockBanner()+'<div class="row" style="margin-bottom:10px"><b>Stock Overview</b><span style="flex:1"></span><button class="d" onclick="logout()">Logout</button></div>'+
     dlists(db.sites,VCOLS.map(function(c){return c[0];}))+
     '<div class="small" style="margin-bottom:6px"><button onclick="clearFilters()" style="min-height:26px;padding:2px 10px;font-size:12px;margin-right:8px">Filters clear</button>Total rows: <span id="vc">'+v.n+'</span> / <span id="vt">'+db.sites.length+'</span></div>'+
     '<div class="tw vw fit"><table>'+cg(VCOLS.map(function(c){return c[0];}))+'<thead>'+head+'</thead><tbody id="vb">'+v.html+'</tbody></table></div>';
@@ -609,7 +687,7 @@ function adminView(){
   if(adminTab==='users') body=usersTab();
   if(adminTab==='cols') body=colsTab();
   if(adminTab==='settings') body=settingsTab();
-  return '<div class="row" style="margin-bottom:10px"><b>ADMIN</b><span style="flex:1"></span><button class="d" onclick="logout()">Logout</button></div>'+
+  return stockBanner()+'<div class="row" style="margin-bottom:10px"><b>ADMIN</b><span style="flex:1"></span><button class="d" onclick="logout()">Logout</button></div>'+
     '<div class="tabs">'+t('data','Data')+t('upload','CSV Upload')+t('users','Fillers / Passwords')+t('cols','Columns & Rights')+t('settings','Settings')+'</div>'+body;
 }
 function matchFilter(s){
@@ -673,7 +751,7 @@ function exportCsv(){
 }
 function uploadTab(){
   return '<div class="msg i">CSV columns: ID, Site Name, FS Stock, Card No, SNMP Stock, Diesel Req., SNMP DG RH, Avg SNMP RH, Tech</div>'+
-    '<div class="row"><input type="file" id="f" accept=".csv" class="grow">'+
+    '<div class="msg i">📅 <b>Stock Date:</b> Jis din ka CSV hai, wahi date chuno. Ye date sabko upar dikhegi.</div><div class="row"><label style="margin:0">Stock Date <input type="date" id="stockDateInput" value="'+(db.stockDate||'')+'"></label></div>'+'<div class="row"><input type="file" id="f" accept=".csv" class="grow">'+
     '<label style="display:flex;gap:6px;align-items:center;font-weight:400"><input type="checkbox" id="rep" style="width:auto"> pehle ka data hatao</label>'+
     '<button class="p" onclick="importCsv()">Upload</button></div><div id="upmsg"></div>';
 }
@@ -723,7 +801,7 @@ function importCsv(){
       if(!db.users[card]) db.users[card]={password:last4(card),mustChange:true,submitted:false};
       n++;
     });
-    save(); out.innerHTML='<div class="msg o">'+n+' rows upload hui.</div>';
+    var sd=document.getElementById('stockDateInput'); if(sd&&sd.value){ db.stockDate=sd.value; } else if(!db.stockDate){ db.stockDate=new Date().toISOString().slice(0,10); } save(); out.innerHTML='<div class="msg o">'+n+' rows upload hui. Stock Date: '+fmtStockDate(db.stockDate)+'</div>';
   };
   rd.readAsText(f,'UTF-8');
 }
@@ -828,6 +906,7 @@ document.getElementById('inst').onclick=function(){ if(!deferredPrompt) return; 
 window.addEventListener('appinstalled',function(){ document.getElementById('inst').style.display='none'; });
 if('serviceWorker' in navigator && location.protocol.indexOf('http')===0){ window.addEventListener('load',function(){ navigator.serviceWorker.register('sw.js').catch(function(){}); }); }
 remoteInit(); setInterval(remotePoll,3000);
+setTimeout(function(){ var s=document.getElementById('splash'); if(s) s.classList.add('hide'); },2100);
 try{ render(); }catch(e){
   var el=document.getElementById('err'); el.style.display='block'; el.textContent='BOOT: '+e.message;
 }
