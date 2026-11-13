@@ -203,6 +203,20 @@ button.p{background:var(--ac)}button.g{background:#16a34a;border-color:#16a34a}b
   .fit .badge{font-size:7.5px;padding:0 3px}
   .wrap{padding:6px}
 }
+
+/* viewer: single-line rows + always-visible filter row */
+.vw th{position:static!important}
+.vw thead{position:sticky;top:54px;z-index:3;background:#f1f5f9}
+.vw .vfr th input{display:block!important;width:100%!important;min-height:22px!important;font-size:10px!important;padding:1px 4px!important;background:#fff;border:1px solid #cfd6e2;border-radius:5px}
+.vw td:nth-child(1),.vw td:nth-child(3),.vw td:nth-child(4){white-space:nowrap!important}
+@media (max-width:820px){
+  .vw thead{top:calc(50px + env(safe-area-inset-top,0px))}
+  .vw table{font-size:clamp(7px,2.35vw,10px)}
+  .vw th,.vw td{font-size:clamp(7px,2.35vw,10px)!important;padding:3px 2px!important}
+  .vw th{font-size:clamp(6.5px,2vw,9px)!important}
+  .vw .vfr th{padding:2px!important}
+  .vw .vfr th input{min-height:20px!important;font-size:clamp(7px,2vw,9px)!important;padding:1px 2px!important}
+}
 </style>
 </head>
 <body>
@@ -472,11 +486,12 @@ function viewerBody(){
 function viewerView(){
   var head='<tr>';
   VCOLS.forEach(function(c){ head+='<th>'+c[1]+'</th>'; });
+  head+='</tr><tr class="vfr">';
+  VCOLS.forEach(function(c){ head+='<th><input placeholder="filter" value="'+esc(filters[c[0]]||'')+'" oninput="filters['+qq(c[0])+']=this.value;refreshViewer()"></th>'; });
   head+='</tr>';
   var v=viewerBody();
   return '<div class="row" style="margin-bottom:10px"><b>Stock Overview</b><span style="flex:1"></span><button class="d" onclick="logout()">Logout</button></div>'+
     '<div class="row" style="margin-bottom:8px;flex-wrap:nowrap"><input id="vs" type="search" placeholder="Search: Site ID / Site Name / Technician" value="'+esc(vq)+'" oninput="vq=this.value;refreshViewer()" style="flex:1;min-height:40px;padding:8px 12px;font-size:14px"></div>'+
-    fpanel(VCOLS,'refreshViewer()')+
     '<div class="small" style="margin-bottom:6px">Total rows: <span id="vc">'+v.n+'</span> / <span id="vt">'+db.sites.length+'</span></div>'+
     '<div class="tw vw fit"><table><thead>'+head+'</thead><tbody id="vb">'+v.html+'</tbody></table></div>';
 }
