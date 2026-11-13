@@ -350,7 +350,7 @@ function fillerView(card){
   if(frozen) h+='<div class="msg o">Aapka data submit ho chuka hai. Ab sirf dekh sakte hain.</div>';
   if(rows.length){
     h+='<div class="row" style="margin-bottom:8px;flex-wrap:nowrap"><input type="search" placeholder="Search: Site ID / Site Name / Technician" value="'+esc(fq)+'" oninput="filterFiller(this.value)" style="flex:1;min-height:40px;padding:8px 12px;font-size:14px"></div>';
-    h+='<div class="tw vw"><table><thead class="nofilter"><tr>'+head+'</tr></thead><tbody id="fb">'+body+'</tbody></table></div>';
+    h+='<div class="tw"><table><thead class="nofilter"><tr>'+head+'</tr></thead><tbody id="fb">'+body+'</tbody></table></div>';
   } else {
     h+='<div class="msg i">Aapke card par koi site nahi hai.</div>';
   }
