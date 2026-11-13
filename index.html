@@ -359,8 +359,7 @@ function techSummary(card){
     var k=firstName(s.tech)||'Technician';
     if(!map[k]) map[k]={qty:0,sites:0,filled:0};
     map[k].sites++;
-    db.dates.forEach(function(d){ if(!d.vis) return; var v=parseFloat(s.vals[d.label]); if(!isNaN(v)&&v>0){ map[k].qty+=v; map[k].filled++; filled++; } });
-    total+=map[k].qty;
+    db.dates.forEach(function(d){ if(!d.vis) return; var v=parseFloat(s.vals[d.label]); if(!isNaN(v)&&v>0){ map[k].qty+=v; map[k].filled++; filled++; total+=v; } });
   });
   var rows=Object.keys(map).sort().map(function(k){ return '<div class="sumrow"><span>👨‍🔧 '+esc(k)+' <small style="color:#64748b">• '+map[k].filled+' entry / '+map[k].sites+' sites</small></span><b>'+map[k].qty+' L</b></div>'; }).join('');
   return {html:rows||'<div class="msg i">No qty selected yet.</div>', total:total, filled:filled};
