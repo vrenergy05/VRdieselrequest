@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="hi">
-<head><script>/*VR_CACHE_BUST*/try{if("serviceWorker" in navigator){navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){r.unregister();});});}if("caches" in window){caches.keys().then(function(ks){ks.forEach(function(k){caches.delete(k);});});}}catch(e){}</script>
+<head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0f172a">
@@ -461,8 +461,9 @@ function vrOneLoginView(err){
     '<label>Password</label><div style="position:relative"><input id="p" type="password" autocomplete="current-password" placeholder="Password" value="'+esc(rem?rem.p:'')+'" style="padding-right:44px"><button class="g-eye" type="button" onclick="togglePw()">👁</button></div>'+
     '<label class="chk g-remember"><input type="checkbox" id="remember" '+(rem?'checked':'')+'> Save password</label>'+
     '<button class="g-btn" onclick="doLogin()">Log in</button>'+
-    '<a class="g-forgot" onclick="forgotPw()">Forgot your password?</a></div></div>';
+    '<a class="g-forgot" onclick="forgotPw()">Forgot your password?</a><button class="g-btn" type="button" id="installBtn" onclick="installApp()" style="background:linear-gradient(90deg,#0F0F14,#23232A)!important;margin-top:12px">Install App</button><div class="small" id="installHint" style="text-align:center;margin-top:8px;color:#6b6350;display:none">Chrome menu (⋮) > Add to Home screen</div></div></div>';
 }
+function installApp(){ if(window.deferredPrompt){ window.deferredPrompt.prompt(); window.deferredPrompt.userChoice.then(function(){ window.deferredPrompt=null; }); } else { var h=document.getElementById('installHint'); if(h) h.style.display='block'; } }
 function togglePw(){ var x=document.getElementById('p'); if(!x) return; x.type=(x.type==='password'?'text':'password'); }
 function forgotPw(){ alert('Please contact Admin to reset your password.'); }
 
