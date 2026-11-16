@@ -393,6 +393,7 @@ function load(){
   try{ d=JSON.parse(store.get(KEY)); }catch(e){}
   if(!d||!d.sites){ d=seed(); }
   d.users=d.users||{};
+  if(!d.viewer||!d.viewer.password) d.viewer={username:'JITENDRA',password:'Jitendra@123'};
   if(!d.stockDate) d.stockDate='2026-11-13';
   if(!d.vis){ d.vis=JSON.parse(JSON.stringify(ALLVIS)); }
   (d.dates||[]).forEach(function(x){ if(x.vis===undefined) x.vis=true; });
@@ -415,6 +416,7 @@ function norm(d){
   d.sites=(d.sites||[]).filter(function(x){return x;});
   d.sites.forEach(function(x){ x.vals=x.vals||{}; if(x.remark==null) x.remark=''; });
   d.users=d.users||{};
+  if(!d.viewer||!d.viewer.password) d.viewer={username:'JITENDRA',password:'Jitendra@123'};
   if(!d.stockDate) d.stockDate='2026-11-13'; d.dates=d.dates||[];
   d.dates.forEach(function(x){ if(x.vis===undefined) x.vis=true; });
   if(!d.vis) d.vis=JSON.parse(JSON.stringify(ALLVIS));
@@ -446,7 +448,22 @@ function esc(v){
   });
 }
 function firstName(t){ return String(t==null?'':t).trim().split(/\s+/)[0]||''; }
+function varianceOf(s){
+  var fs=parseFloat(s.stock), sn=parseFloat(s.cur);
+  var hasFs=!isNaN(fs), hasSn=!isNaN(sn);
+  // Negative stock ko 0 mano - negative Variance kabhi nahi aayegi
+  if(hasFs) fs=Math.max(0, fs); else fs=NaN;
+  if(hasSn) sn=Math.max(0, sn); else sn=NaN;
+  hasFs=!isNaN(fs); hasSn=!isNaN(sn);
+  // Variance = SNMP - Fuel Sensor (kami). Fuel Sensor zyada ho to 0.
+  // Decimal ke baad ki value nahi - hamesha round integer
+  if(hasFs&&hasSn) return Math.max(0, Math.round(sn-fs));
+  if(!hasFs&&hasSn) return Math.max(0, Math.round(sn));
+  // Sirf Fuel Sensor hai, SNMP nahi - compare karne ko kuch nahi, variance 0
+  return 0;
+}
 function cellFor(key,s){
+  if(key==='variance') return esc(varianceOf(s));
   if(key==='req') return s.req==='ok'?'<span class="badge ok">ok</span>':'<span class="badge no">NOK</span>';
   if(key==='site') return '<span class="sn" title="'+esc(s.site)+'">'+esc(s.site)+'</span>';
   return esc(s[key]);
@@ -481,7 +498,7 @@ function doLogin(){
   var u=document.getElementById('u').value.trim(), p=document.getElementById('p').value;
   var rem=document.getElementById('remember'); if(rem&&rem.checked){ try{ store.set('VR_REMEMBER',JSON.stringify({u:u,p:p})); }catch(e){} } else if(rem){ try{ store.del('VR_REMEMBER'); }catch(e){} }
   if(u.toUpperCase()==='JITENDRA'){
-    if(p!=='Jitendra@123') return render('Incorrect viewer password');
+    var vp=(db.viewer&&db.viewer.password)||'Jitendra@123'; if(p!==vp) return render('Incorrect viewer password');
     session={role:'viewer'}; store.set(SKEY,JSON.stringify(session)); render(); return;
   }
   if(u.toUpperCase()==='ADMIN'){
@@ -591,8 +608,9 @@ function fillerView(card){
   var _ts=techSummary(card);
   var h=stockBanner()+'<div class="row" style="margin-bottom:10px"><div><b>Card:</b> '+esc(cardDisp(card))+'</div>';
   if(frozen) h+='<span class="badge ok">SUBMITTED - view only</span>';
-  h+='<span style="flex:1"></span><button onclick="clearFilters()">Filters clear</button><button onclick="changePw('+qq(esc(card))+')">Password change</button><button class="d" onclick="logout()">Logout</button></div>';
+  h+='<span style="flex:1"></span><button class="g" onclick="exportJpegFiller()">Download JPEG</button><button onclick="clearFilters()">Filters clear</button><button onclick="changePw('+qq(esc(card))+')">Password change</button><button class="d" onclick="logout()">Logout</button></div>';
   if(frozen) h+='<div class="msg o">Your data is submitted. Locked for today. 🔒</div>';
+  if(db.stockDate) h+='<div class="row" style="margin-bottom:8px"><span class="pill" style="background:#fffbe6;border:1px solid #f5d76e">📅 Stock Date: '+esc(fmtStockDate(db.stockDate))+'</span></div>';
   h+='<div class="row" style="margin-bottom:10px"><span class="pill">Technician-wise Total: '+_ts.total+' L</span><span class="pill">Filled: '+_ts.filled+' entries</span></div>';
   if(rows.length){
     h+=dlists(rows.map(function(o){return o.s;}),cols.map(function(c){return c[0];}));
@@ -617,21 +635,23 @@ function changePw(card){
 }
 
 
-var VCOLS=[['indus','Site ID'],['site','Site Name'],['stock','Fuel Sensor Stock'],['cur','Current Stock (As per SNMP)'],['tech','Technician Name']];
+var VCOLS=[['indus','Site ID'],['site','Site Name'],['card','Card No'],['stock','Fuel Sensor Stock'],['cur','Current Stock (As per SNMP)'],['variance','Variance'],['tech','Technician Name']];
 var vq='';
 function viewerBody(){
   var q=vq.trim().toLowerCase();
   var rows=db.sites.filter(function(x){
+    if(!techVisOf(x.tech||'Unknown')) return false;
     if(!matchFilter(x)) return false;
     if(!q) return true;
-    return VCOLS.some(function(b){ return String(x[b[0]]==null?'':x[b[0]]).toLowerCase().indexOf(q)>-1; });
+    return VCOLS.some(function(b){ var vv=(b[0]==='variance')?varianceOf(x):x[b[0]]; return String(vv==null?'':vv).toLowerCase().indexOf(q)>-1; });
   });
+  var totalVar=0; rows.forEach(function(s){ totalVar+=varianceOf(s); });
   var body=rows.map(function(s){
     var c='';
     VCOLS.forEach(function(b){ c+='<td class="k-'+b[0]+'">'+(b[0]==='tech'?esc(firstName(s.tech)):cellFor(b[0],s))+'</td>'; });
     return '<tr>'+c+'</tr>';
   }).join('');
-  return {html:body||'<tr><td colspan="5">No rows</td></tr>',n:rows.length};
+  return {html:body||'<tr><td colspan="7">No rows</td></tr>',n:rows.length,totalVar:totalVar};
 }
 function viewerView(){
   var head='<tr>';
@@ -642,7 +662,7 @@ function viewerView(){
   var v=viewerBody();
   return stockBanner()+'<div class="row" style="margin-bottom:10px"><b>Stock Overview</b><span style="flex:1"></span><button class="d" onclick="logout()">Logout</button></div>'+
     dlists(db.sites,VCOLS.map(function(c){return c[0];}))+
-    '<div class="small" style="margin-bottom:6px"><button onclick="clearFilters()" style="min-height:26px;padding:2px 10px;font-size:12px;margin-right:8px">Filters clear</button>Total rows: <span id="vc">'+v.n+'</span> / <span id="vt">'+db.sites.length+'</span></div>'+
+    '<div class="small" style="margin-bottom:6px"><button onclick="clearFilters()" style="min-height:26px;padding:2px 10px;font-size:12px;margin-right:8px">Filters clear</button>Total rows: <span id="vc">'+v.n+'</span> / <span id="vt">'+db.sites.length+'</span> &nbsp;|&nbsp; <span style="display:inline-block;background:#FFE27A;border:2px solid #E6B800;border-radius:10px;padding:5px 12px;font-size:17px;font-weight:900;color:#111">Total Variance: <span id="vvar">'+Math.round(v.totalVar)+'</span> L</span></div>'+
     '<div class="tw vw fit"><table>'+cg(VCOLS.map(function(c){return c[0];}))+'<thead>'+head+'</thead><tbody id="vb">'+v.html+'</tbody></table></div>';
 }
 function refreshViewer(){
@@ -651,6 +671,21 @@ function refreshViewer(){
   b.innerHTML=v.html;
   document.getElementById('vc').textContent=v.n;
   document.getElementById('vt').textContent=db.sites.length;
+  var vv=document.getElementById('vvar'); if(vv) vv.textContent=v.totalVar;
+}
+function techVisOf(tech){ if(!db.techVis) db.techVis={}; if(db.techVis[tech]===undefined) return 1; return db.techVis[tech]?1:0; }
+function setTechVis(tech,v){ if(!db.techVis) db.techVis={}; db.techVis[tech]=v?1:0; save(); render(); }
+function techViewTab(){
+  var seen={}, techs=[];
+  db.sites.forEach(function(s){ var k=s.tech||'Unknown'; if(!seen[k]){ seen[k]=1; techs.push(k); } });
+  techs.sort();
+  var rows=techs.map(function(k){
+    var cnt=db.sites.filter(function(s){ return (s.tech||'Unknown')===k; }).length;
+    return '<label class="chk" style="display:flex;gap:10px;align-items:center;padding:10px 12px;border:1px solid #e5e7eb;border-radius:10px;margin-bottom:8px;background:#fff"><input type="checkbox" '+(techVisOf(k)?'checked':'')+' onchange="setTechVis('+qq(k)+',this.checked)"> <span style="flex:1"><b>'+esc(k)+'</b></span><span class="small">'+cnt+' sites</span><span class="badge '+(techVisOf(k)?'ok':'')+'">'+(techVisOf(k)?'Show':'Hidden')+'</span></label>';
+  }).join('');
+  return '<div class="msg i">Tick wala technician Data / Viewer / JPEG me dikhega. Unticked technician hide ho jayega.</div>'+
+    '<h2 style="font-size:15px;margin:12px 0 8px">Technician View - Show / Hide</h2>'+
+    '<div style="max-width:520px">'+(rows||'<div class="msg i">No technician</div>')+'</div>';
 }
 function adminView(){
   function t(k,n){ return '<button class="'+(adminTab===k?'on':'')+'" onclick="adminTab='+qq(k)+';render()">'+n+'</button>'; }
@@ -659,9 +694,10 @@ function adminView(){
   if(adminTab==='upload') body=uploadTab();
   if(adminTab==='users') body=usersTab();
   if(adminTab==='cols') body=colsTab();
+  if(adminTab==='techview') body=techViewTab();
   if(adminTab==='settings') body=settingsTab();
   return stockBanner()+'<div class="row" style="margin-bottom:10px"><b>ADMIN</b><span style="flex:1"></span><button class="d" onclick="logout()">Logout</button></div>'+
-    '<div class="tabs">'+t('data','Data')+t('upload','CSV Upload')+t('users','Fillers / Passwords')+t('cols','Columns & Rights')+t('settings','Settings')+'</div>'+body;
+    '<div class="tabs">'+t('data','Data')+t('upload','CSV Upload')+t('users','Fillers / Passwords')+t('cols','Columns & Rights')+t('techview','Technician View')+t('settings','Settings')+'</div>'+body;
 }
 function matchFilter(s){
   for(var k in filters){
@@ -669,13 +705,14 @@ function matchFilter(s){
     if(k==='req'){ if(s.req!==v) return false; }
     else if(k==='submitted'){ if((db.users[s.card]&&db.users[s.card].submitted?'1':'0')!==v) return false; }
     else if(k==='card'&&session&&session.role==='filler'){ if(cardDisp(s.card).toLowerCase().indexOf(v.toLowerCase())<0) return false; }
+    else if(k==='variance'){ if(String(varianceOf(s)).toLowerCase().indexOf(v.toLowerCase())<0) return false; }
     else if(String(s[k]||'').toLowerCase().indexOf(v.toLowerCase())<0) return false;
   }
   return true;
 }
 function fInput(col){ return '<input '+(col==='remark'?'':'list="dl_'+col+'" ')+'value="'+esc(filters[col]||'')+'" oninput="filters['+qq(col)+']=this.value;refreshData()">'; }
 function dataTab(){
-  var rows=db.sites.map(function(s,i){ return {s:s,i:i}; }).filter(function(o){ return matchFilter(o.s); });
+  var rows=db.sites.map(function(s,i){ return {s:s,i:i}; }).filter(function(o){ return matchFilter(o.s) && techVisOf(o.s.tech||'Unknown'); });
   var head='<tr>';
   BASECOLS.forEach(function(c){
     if(c[0]==='req'){
@@ -698,7 +735,7 @@ function dataTab(){
     return '<tr>'+c+'</tr>';
   }).join('');
 
-  return '<div class="row" style="margin-bottom:8px"><button class="g" onclick="exportCsv()">Export CSV ('+rows.length+')</button>'+
+  return '<div class="row" style="margin-bottom:8px"><button class="g" onclick="exportCsv()">Export CSV ('+rows.length+')</button><button class="g" onclick="exportJpeg()">Download JPEG</button>'+
     '<button onclick="filters={};refreshData()">Filters clear</button>'+
     '<span class="small">Column headers me filter - site id, tech, ok/not ok, status sab par.</span></div>'+
     dlists(db.sites,BASECOLS.map(function(c){return c[0];}))+
@@ -722,6 +759,59 @@ function exportCsv(){
   a.href=URL.createObjectURL(new Blob([BOM+lines.join(CR+LF)],{type:'text/csv;charset=utf-8'}));
   a.download='diesel_data_'+new Date().toISOString().slice(0,10)+'.csv'; a.click();
 }
+function jpegRowsFor(card){
+  var list=db.sites.filter(function(s){ if(card) return s.card===card; return matchFilter(s) && techVisOf(s.tech||'Unknown'); });
+  return list;
+}
+function exportJpeg(card){
+  var rows=jpegRowsFor(card||null);
+  var cols=[{h:'ID',w:150},{h:'Site Name',w:230},{h:'Card No',w:190},{h:'Tech',w:180}];
+  db.dates.forEach(function(d){ cols.push({h:d.label,w:95}); });
+  cols.push({h:'Remark',w:180});
+  var pad=24, rh=36, hh=42, titleH=110;
+  var W=pad*2; cols.forEach(function(c){ W+=c.w; });
+  var H=titleH+hh+rows.length*rh+46;
+  var cv=document.createElement('canvas'); cv.width=W; cv.height=H;
+  var x=cv.getContext('2d');
+  x.fillStyle='#ffffff'; x.fillRect(0,0,W,H);
+  // Heading
+  x.fillStyle='#0F0F14'; x.fillRect(0,0,W,78);
+  x.fillStyle='#FFC107'; x.font='900 34px Georgia, serif'; x.textAlign='center';
+  x.fillText('VR ONE', W/2, 38);
+  x.fillStyle='#F5EEDD'; x.font='700 13px Arial'; x.fillText('ENERGY DEPARTMENT  •  SUBMITTED DIESEL REPORT', W/2, 62);
+  x.fillStyle='#1C1C22'; x.font='600 13px Arial'; x.textAlign='left';
+  x.fillText('Stock Date: '+fmtStockDate(db.stockDate), pad, 100);
+  x.textAlign='right'; x.fillText('Total Sites: '+rows.length, W-pad, 100); x.textAlign='left';
+  // Table header
+  var y=titleH, cx=pad;
+  x.fillStyle='#111111'; x.fillRect(pad, y, W-pad*2, hh);
+  x.fillStyle='#ffffff'; x.font='700 13px Arial';
+  cols.forEach(function(c){ x.fillText(c.h, cx+8, y+26); cx+=c.w; });
+  y+=hh;
+  var total=0;
+  rows.forEach(function(s,idx){
+    if(idx%2===1){ x.fillStyle='#F5F5F0'; x.fillRect(pad, y, W-pad*2, rh); }
+    x.fillStyle='#111111'; x.font='400 13px Arial';
+    var vals=[s.indus, s.site, s.card, s.tech];
+    db.dates.forEach(function(d){ var v=parseFloat(s.vals[d.label]); vals.push(s.vals[d.label]||''); if(!isNaN(v)&&v>0) total+=v; });
+    vals.push(s.remark||'');
+    var cx2=pad;
+    vals.forEach(function(val,ci){
+      var txt=String(val==null?'':val);
+      if(txt.length>28) txt=txt.slice(0,27)+'..';
+      x.fillText(txt, cx2+8, y+23); cx2+=cols[ci].w;
+    });
+    x.strokeStyle='#E5E5E0'; x.beginPath(); x.moveTo(pad, y+rh); x.lineTo(W-pad, y+rh); x.stroke();
+    y+=rh;
+  });
+  // Total
+  x.fillStyle='#111111'; x.font='700 15px Arial';
+  x.fillText('Total Submitted Qty: '+total+' L', pad, y+28);
+  var a=document.createElement('a');
+  a.href=cv.toDataURL('image/jpeg', 0.92);
+  a.download='VR-ONE-submitted-'+(db.stockDate||'report')+'.jpeg'; a.click();
+}
+function exportJpegFiller(){ exportJpeg(session?session.card:null); }
 function uploadTab(){
   return '<div class="msg i">CSV columns: ID, Site Name, FS Stock, Card No, SNMP Stock, Diesel Req., SNMP DG RH, Avg SNMP RH, Tech</div>'+
     '<div class="msg i">📅 <b>Stock Date:</b> Jis din ka CSV hai, wahi date chuno. Ye date sabko upar dikhegi.</div><div class="row"><label style="margin:0">Stock Date <input type="date" id="stockDateInput" value="'+(db.stockDate||'')+'"></label></div>'+'<div class="row"><input type="file" id="f" accept=".csv" class="grow">'+
@@ -790,11 +880,22 @@ function usersTab(){
       '<td data-label="Action"><div class="row"><button onclick="resetPw('+qq(esc(c))+')">Reset to last4</button>'+
       '<button onclick="toggleLock('+qq(esc(c))+')">'+(u.submitted?'Unlock':'Lock')+'</button></div></td></tr>';
   }).join('');
+  var vp2=(db.viewer&&db.viewer.password)||'Jitendra@123';
+  var vu=(db.viewer&&db.viewer.username)||'JITENDRA';
   return '<div class="msg i">Password and submitted lock can be managed here.</div>'+
     '<div class="tw"><table><thead class="nofilter"><tr><th>Card No</th><th>Tech</th><th>Password (admin set)</th><th>Submitted</th><th></th></tr></thead><tbody>'+
-    (rows||'<tr><td colspan="5">No filler</td></tr>')+'</tbody></table></div>';
+    (rows||'<tr><td colspan="5">No filler</td></tr>')+'</tbody></table></div>'+
+    '<h2 style="font-size:15px;margin:22px 0 8px">View Only Login - Single Login (Technician / Viewer)</h2>'+
+    '<div class="msg i">View wale ke liye sirf ek hi login hai. Yahan se uska username / password badal ya reset kar sakte hain.</div>'+
+    '<div class="tw"><table><thead class="nofilter"><tr><th>Username</th><th>Password</th><th></th></tr></thead><tbody>'+
+    '<tr><td data-label="Username">'+esc(vu)+' <span class="badge ok">View Only</span></td>'+
+    '<td data-label="Password"><input value="'+esc(vp2)+'" onchange="setViewerPw(this.value)"></td>'+
+    '<td data-label="Action"><button onclick="resetViewerPw()">Reset to Jitendra@123</button></td></tr>'+
+    '</tbody></table></div>';
 }
 function setPw(c,v){ db.users[c].password=v; db.users[c].mustChange=false; save(); }
+function setViewerPw(v){ if(!db.viewer) db.viewer={username:'JITENDRA',password:'Jitendra@123'}; db.viewer.password=v; save(); }
+function resetViewerPw(){ if(!db.viewer) db.viewer={username:'JITENDRA',password:'Jitendra@123'}; db.viewer.password='Jitendra@123'; save(); render(); }
 function resetPw(c){ db.users[c].password=last4(c); save(); render(); }
 function toggleLock(c){ db.users[c].submitted=!db.users[c].submitted; save(); render(); }
 
