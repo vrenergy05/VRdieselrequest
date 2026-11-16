@@ -489,7 +489,7 @@ function loginView(err){ return vrOneLoginView(err); }
 function otpView(err){
   return '<div class="card"><h2>Admin OTP</h2>'+
     (err?'<div class="msg e">'+esc(err)+'</div>':'')+
-    '<div class="msg i">OTP sent: <b>'+esc(otpPhone)+'</b> (demo mode)</div>'+
+    '<div class="msg i">OTP sent (demo mode)</div>'+
     '<div style="margin:10px 0"><span class="otp">'+pendingOtp+'</span></div>'+
     '<label>Enter OTPin</label><input id="o" inputmode="numeric" maxlength="6">'+
     '<div style="margin-top:14px"><button class="p" style="width:100%" onclick="verifyOtp()">Verify</button></div></div>';
@@ -681,11 +681,56 @@ function techViewTab(){
   techs.sort();
   var rows=techs.map(function(k){
     var cnt=db.sites.filter(function(s){ return (s.tech||'Unknown')===k; }).length;
-    return '<label class="chk" style="display:flex;gap:10px;align-items:center;padding:10px 12px;border:1px solid #e5e7eb;border-radius:10px;margin-bottom:8px;background:#fff"><input type="checkbox" '+(techVisOf(k)?'checked':'')+' onchange="setTechVis('+qq(k)+',this.checked)"> <span style="flex:1"><b>'+esc(k)+'</b></span><span class="small">'+cnt+' sites</span><span class="badge '+(techVisOf(k)?'ok':'')+'">'+(techVisOf(k)?'Show':'Hidden')+'</span></label>';
+    var totVar=0; db.sites.forEach(function(s){ if((s.tech||'Unknown')===k) totVar+=varianceOf(s); });
+    return '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px 12px;border:1px solid #e5e7eb;border-radius:10px;margin-bottom:8px;background:#fff"><input type="checkbox" class="waSel" value="'+encodeURIComponent(k)+'" onchange="updateSelCount()" title="WhatsApp bhejne ke liye select karo"><label class="chk" style="display:flex;gap:8px;align-items:center;margin:0"><input type="checkbox" '+(techVisOf(k)?'checked':'')+' onchange="setTechVis('+qq(k)+',this.checked)"> <b>'+esc(k)+'</b></label><span class="small" style="flex:1">'+cnt+' sites | Variance: '+totVar+' L</span><button class="g" onclick="sendWhatsApp('+qq(k)+')">WhatsApp</button></div>';
   }).join('');
   return '<div class="msg i">Tick wala technician Data / Viewer / JPEG me dikhega. Unticked technician hide ho jayega.</div>'+
     '<h2 style="font-size:15px;margin:12px 0 8px">Technician View - Show / Hide</h2>'+
+    '<div style="max-width:520px;margin-bottom:10px;padding:10px 12px;border:2px solid #E6B800;border-radius:10px;background:#FFF8D6;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><label style="display:flex;gap:6px;align-items:center;margin:0"><input type="checkbox" id="waSelAll" onchange="toggleSelAll(this.checked)"> <b>Select All</b></label><span class="small" id="waSelCount">0 selected</span><span style="flex:1"></span><button class="g" onclick="sendSelectedWhatsApp()">Send Selected via WhatsApp</button></div><div id="waQueueBar"></div>'+
     '<div style="max-width:520px">'+(rows||'<div class="msg i">No technician</div>')+'</div>';
+}
+function waMsgFor(tech){
+  var card1=''; for(var i=0;i<db.sites.length;i++){ if((db.sites[i].tech||'Unknown')===tech){ card1=db.sites[i].card; break; } }
+  var ph=(db.users[card1]&&db.users[card1].phone)||'';
+  if(!ph||ph.length!==10) return null;
+  var totVar=0, cnt=0; db.sites.forEach(function(s){ if((s.tech||'Unknown')===tech){ totVar+=varianceOf(s); cnt++; } });
+  var msg='VR ONE - Energy Department\nTechnician: '+tech+'\nStock Date: '+fmtStockDate(db.stockDate)+'\nSites: '+cnt+'\nTotal Variance: '+totVar+' L\nPlease check your sites.';
+  return {ph:ph, msg:msg};
+}
+function sendWhatsApp(tech){
+  var w=waMsgFor(tech);
+  if(!w){ alert('Is technician ka Mobile No CSV me nahi mila. CSV ke last column me iska number daal ke dobara upload karo.'); return; }
+  window.open('https://wa.me/91'+w.ph+'?text='+encodeURIComponent(w.msg), '_blank');
+}
+var waQueue=[], waIdx=0;
+function updateSelCount(){
+  var boxes=document.querySelectorAll('.waSel'), n=0; for(var i=0;i<boxes.length;i++){ if(boxes[i].checked) n++; }
+  var c=document.getElementById('waSelCount'); if(c) c.textContent=n+' selected';
+  var all=document.getElementById('waSelAll'); if(all) all.checked=(boxes.length>0&&n===boxes.length);
+}
+function toggleSelAll(on){
+  var boxes=document.querySelectorAll('.waSel'); for(var i=0;i<boxes.length;i++){ boxes[i].checked=on; }
+  updateSelCount();
+}
+function sendSelectedWhatsApp(){
+  var boxes=document.querySelectorAll('.waSel'), list=[];
+  for(var i=0;i<boxes.length;i++){ if(boxes[i].checked) list.push(decodeURIComponent(boxes[i].value)); }
+  if(!list.length){ alert('Pehle ek ya zyada technician tick karo, ya Select All dabao.'); return; }
+  waQueue=list; waIdx=0; sendNextWhatsApp();
+}
+function sendNextWhatsApp(){
+  var bar=document.getElementById('waQueueBar');
+  if(waIdx>=waQueue.length){
+    if(bar) bar.innerHTML='<div class="msg o">Ho gaya - '+waQueue.length+' technician ko WhatsApp bhej diya.</div>';
+    return;
+  }
+  var tech=waQueue[waIdx], w=waMsgFor(tech);
+  if(!w){
+    if(bar) bar.innerHTML='<div class="msg e">'+esc(tech)+' ka Mobile No CSV me nahi mila - isko chhod diya.</div><button class="g" onclick="waIdx++;sendNextWhatsApp()">Next Technician</button>';
+    return;
+  }
+  window.open('https://wa.me/91'+w.ph+'?text='+encodeURIComponent(w.msg), '_blank');
+  if(bar) bar.innerHTML='<div class="msg o">'+(waIdx+1)+' / '+waQueue.length+' - <b>'+esc(tech)+'</b> ka WhatsApp khul gaya. WhatsApp me Send dabao, phir yahan Next dabao.</div><button class="g" onclick="waIdx++;sendNextWhatsApp()">Next Technician</button>';
 }
 function adminView(){
   function t(k,n){ return '<button class="'+(adminTab===k?'on':'')+'" onclick="adminTab='+qq(k)+';render()">'+n+'</button>'; }
@@ -814,6 +859,7 @@ function exportJpeg(card){
 function exportJpegFiller(){ exportJpeg(session?session.card:null); }
 function uploadTab(){
   return '<div class="msg i">CSV columns: ID, Site Name, FS Stock, Card No, SNMP Stock, Diesel Req., SNMP DG RH, Avg SNMP RH, Tech</div>'+
+    '<div class="msg i">📱 <b>Last column = Mobile No</b> - CSV ke last column ka number apne aap Tech-wise map ho jayega, manual dalne ki zaroorat nahi. WhatsApp isi number pe jayega. Number kisi bhi column / table me kisi ko nahi dikhega.</div>'+
     '<div class="msg i">📅 <b>Stock Date:</b> Jis din ka CSV hai, wahi date chuno. Ye date sabko upar dikhegi.</div><div class="row"><label style="margin:0">Stock Date <input type="date" id="stockDateInput" value="'+(db.stockDate||'')+'"></label></div>'+'<div class="row"><input type="file" id="f" accept=".csv" class="grow">'+
     '<label style="display:flex;gap:6px;align-items:center;font-weight:400"><input type="checkbox" id="rep" style="width:auto"> Remove old data</label>'+
     '<button class="p" onclick="importCsv()">Upload</button></div><div id="upmsg"></div>';
@@ -856,15 +902,27 @@ function importCsv(){
     };
     if(m.indus<0||m.card<0||m.tech<0){ out.innerHTML='<div class="msg e">CSV me ID / Card No / Tech columns chahiye</div>'; return; }
     if(document.getElementById('rep').checked){ db.sites=[]; db.users={}; }
-    var n=0;
+    var n=0, techPhone={};
     rows.forEach(function(r){
       var card=(r[m.card]||'').trim(); if(!card) return;
+      var tech=(r[m.tech]||'').trim();
+      // LAST COLUMN = Mobile No - apne aap Tech-wise map (manual entry nahi)
+      // Row ke aakhri cell se 10-digit number nikalo; 91 / +91 / space / - sab saaf ho jayenge
+      var lastCell=String(r.length?r[r.length-1]:'');
+      var ph=lastCell.replace(/[^0-9]/g,'').slice(-10);
+      if(ph.length===10){ techPhone[tech]=ph; }
       db.sites.push({indus:(r[m.indus]||'').trim(),site:(r[m.site]||'').trim(),stock:(r[m.stock]||'').trim(),card:card,
-        cur:(r[m.cur]||'').trim(),req:/not/i.test(r[m.req]||'')?'Not OK':'ok',hrs:(r[m.hrs]||'').trim(),avg:(r[m.avg]||'').trim(),tech:(r[m.tech]||'').trim(),vals:{},remark:''});
+        cur:(r[m.cur]||'').trim(),req:/not/i.test(r[m.req]||'')?'Not OK':'ok',hrs:(r[m.hrs]||'').trim(),avg:(r[m.avg]||'').trim(),tech:tech,vals:{},remark:''});
       if(!db.users[card]) db.users[card]={password:last4(card),mustChange:true,submitted:false};
       n++;
     });
-    var sd=document.getElementById('stockDateInput'); if(sd&&sd.value){ db.stockDate=sd.value; } else if(!db.stockDate){ db.stockDate=new Date().toISOString().slice(0,10); } save(); out.innerHTML='<div class="msg o">'+n+' rows upload hui. Stock Date: '+fmtStockDate(db.stockDate)+'</div>';
+    // Tech-wise phone us Tech ke SAB cards pe lagao (ek Tech ke kai Card ho to bhi)
+    var mapped=0;
+    Object.keys(techPhone).forEach(function(tech){
+      db.sites.forEach(function(s){ if(s.tech===tech){ if(!db.users[s.card]) db.users[s.card]={password:last4(s.card),mustChange:true,submitted:false}; db.users[s.card].phone=techPhone[tech]; } });
+      mapped++;
+    });
+    var sd=document.getElementById('stockDateInput'); if(sd&&sd.value){ db.stockDate=sd.value; } else if(!db.stockDate){ db.stockDate=new Date().toISOString().slice(0,10); } save(); out.innerHTML='<div class="msg o">'+n+' rows upload hui. Stock Date: '+fmtStockDate(db.stockDate)+(mapped?(' | 📱 '+mapped+' technician ke mobile number CSV se auto-map hue.'):'')+'</div>';
   };
   rd.readAsText(f,'UTF-8');
 }
