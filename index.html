@@ -688,7 +688,7 @@ function techViewTab(){
     '<div class="msg i">📱 <b>Select</b> wala tick = WhatsApp bhejna. <b>Naam</b> wala tick = Show / Hide. Dono alag-alag hain.</div>'+
 
     '<h2 style="font-size:15px;margin:12px 0 8px">Technician View - Show / Hide</h2>'+
-    '<div style="max-width:520px;margin-bottom:10px;padding:10px 12px;border:2px solid #E6B800;border-radius:10px;background:#FFF8D6;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><label style="display:flex;gap:6px;align-items:center;margin:0"><input type="checkbox" id="waSelAll" onchange="toggleSelAll(this.checked)"> <b>Select All</b></label><span class="small" id="waSelCount">0 selected</span><span style="flex:1"></span><button class="g" onclick="sendSelectedWhatsApp()">Send Selected via WhatsApp</button></div><div id="waQueueBar"></div>'+
+    '<div style="max-width:520px;margin-bottom:10px;padding:12px;border:2px solid #0a7a2f;border-radius:12px;background:#E8F9EE"><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><label style="display:flex;gap:6px;align-items:center;margin:0;font-size:15px"><input type="checkbox" id="waSelAll" onchange="toggleSelAll(this.checked)" style="width:20px;height:20px;accent-color:#0a7a2f"> <b>Select All</b></label><span class="small" id="waSelCount">0 selected</span><span style="flex:1"></span><button class="g" style="font-size:15px;padding:10px 16px" onclick="sendSelectedWhatsApp()">📱 WhatsApp - Send Selected</button></div><div class="small" style="margin-top:6px">Sabko bhejna hai to Select All tick karo. Jisko nahi bhejna uska Select untick kar do. Ek click pe pehle wale ka WhatsApp khulega, baaki ke naam ke aage apna-apna Open button aayega.</div></div><div id="waQueueBar"></div>'+
     '<div style="max-width:520px">'+(rows||'<div class="msg i">No technician</div>')+'</div>';
 }
 function waMsgFor(tech){
@@ -720,6 +720,13 @@ function sendSelectedWhatsApp(){
   if(!list.length){ alert('Pehle ek ya zyada technician tick karo, ya Select All dabao.'); return; }
   waQueue=list; waIdx=0; sendNextWhatsApp();
 }
+function waQueueListHtml(){
+  var h='';
+  for(var i=waIdx+1;i<waQueue.length;i++){
+    h+='<div style="display:flex;gap:8px;align-items:center;padding:6px 0;border-top:1px solid #eee"><span style="flex:1">'+(i+1)+'. <b>'+esc(waQueue[i])+'</b></span><button class="g" onclick="waIdx='+i+';sendNextWhatsApp()">Open WhatsApp</button></div>';
+  }
+  return h;
+}
 function sendNextWhatsApp(){
   var bar=document.getElementById('waQueueBar');
   if(waIdx>=waQueue.length){
@@ -728,11 +735,11 @@ function sendNextWhatsApp(){
   }
   var tech=waQueue[waIdx], w=waMsgFor(tech);
   if(!w){
-    if(bar) bar.innerHTML='<div class="msg e">'+esc(tech)+' ka Mobile No CSV me nahi mila - isko chhod diya.</div><button class="g" onclick="waIdx++;sendNextWhatsApp()">Next Technician</button>';
+    if(bar) bar.innerHTML='<div class="msg e">'+esc(tech)+' ka Mobile No CSV me nahi mila - isko chhod diya.</div><button class="g" onclick="waIdx++;sendNextWhatsApp()">Next Technician</button>'+waQueueListHtml();
     return;
   }
   window.open('https://wa.me/91'+w.ph+'?text='+encodeURIComponent(w.msg), '_blank');
-  if(bar) bar.innerHTML='<div class="msg o">'+(waIdx+1)+' / '+waQueue.length+' - <b>'+esc(tech)+'</b> ka WhatsApp khul gaya. WhatsApp me Send dabao, phir yahan Next dabao.</div><button class="g" onclick="waIdx++;sendNextWhatsApp()">Next Technician</button>';
+  if(bar) bar.innerHTML='<div class="msg o">'+(waIdx+1)+' / '+waQueue.length+' - <b>'+esc(tech)+'</b> ka WhatsApp khul gaya. WhatsApp me Send dabao.</div><button class="g" onclick="waIdx++;sendNextWhatsApp()">Next Technician</button>'+waQueueListHtml();
 }
 function adminView(){
   function t(k,n){ return '<button class="'+(adminTab===k?'on':'')+'" onclick="adminTab='+qq(k)+';render()">'+n+'</button>'; }
