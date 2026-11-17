@@ -305,6 +305,10 @@ button.p{background:var(--ac)}button.g{background:#16a34a;border-color:#16a34a}b
   .ft.fit td.k-stock::before{color:#3b82f6}
   .ft.fit td.k-cur::before{color:#ea580c}
 }
+
+/* Variance 5L se zyada - SIRF Variance wali value laal me blink, baaki sab normal */
+@keyframes blinkRed{ 0%,100%{opacity:1} 50%{opacity:.25} }
+td.alert-var-cell{ color:#D80000 !important; font-weight:800; animation:blinkRed 1s infinite; }
 </style>
 </head>
 <body><div class="vrone-splash" id="splash"><div class="vrone-name">VR <span>ONE</span></div><div class="gold-line"></div><div class="vrone-sub">Energy Department</div></div>
@@ -648,7 +652,7 @@ function viewerBody(){
   var totalVar=0; rows.forEach(function(s){ totalVar+=varianceOf(s); });
   var body=rows.map(function(s){
     var c='';
-    VCOLS.forEach(function(b){ c+='<td class="k-'+b[0]+'">'+(b[0]==='tech'?esc(firstName(s.tech)):cellFor(b[0],s))+'</td>'; });
+    VCOLS.forEach(function(b){ var blink=''; if(b[0]==='variance'){ var hasFs=!isNaN(parseFloat(s.stock)), hasSn=!isNaN(parseFloat(s.cur)); if(hasFs&&hasSn&&varianceOf(s)>5) blink=' alert-var-cell'; } c+='<td class="k-'+b[0]+blink+'">'+(b[0]==='tech'?esc(firstName(s.tech)):cellFor(b[0],s))+'</td>'; });
     return '<tr>'+c+'</tr>';
   }).join('');
   return {html:body||'<tr><td colspan="7">No rows</td></tr>',n:rows.length,totalVar:totalVar};
