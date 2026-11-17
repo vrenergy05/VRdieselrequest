@@ -655,7 +655,7 @@ function viewerBody(){
     VCOLS.forEach(function(b){ var blink=''; if(b[0]==='variance'){ var hasFs=!isNaN(parseFloat(s.stock)), hasSn=!isNaN(parseFloat(s.cur)); if(hasFs&&hasSn&&varianceOf(s)>5) blink=' alert-var-cell'; } c+='<td class="k-'+b[0]+blink+'">'+(b[0]==='tech'?esc(firstName(s.tech)):cellFor(b[0],s))+'</td>'; });
     return '<tr>'+c+'</tr>';
   }).join('');
-  return {html:body||'<tr><td colspan="7">No rows</td></tr>',n:rows.length,totalVar:totalVar};
+  return {html:body||'<tr><td colspan="7">No rows</td></tr>',n:rows.length,totalVar:totalVar,rows:rows};
 }
 function viewerView(){
   var head='<tr>';
@@ -664,10 +664,16 @@ function viewerView(){
   VCOLS.forEach(function(c){ head+='<th><input list="dl_'+c[0]+'" placeholder="filter" value="'+esc(filters[c[0]]||'')+'" oninput="filters['+qq(c[0])+']=this.value;refreshViewer()"></th>'; });
   head+='</tr>';
   var v=viewerBody();
+  var hasF=hasViewerFilter();
   return stockBanner()+'<div class="row" style="margin-bottom:10px"><b>Stock Overview</b><span style="flex:1"></span><button class="d" onclick="logout()">Logout</button></div>'+
     dlists(db.sites,VCOLS.map(function(c){return c[0];}))+
-    '<div class="small" style="margin-bottom:6px"><button onclick="clearFilters()" style="min-height:26px;padding:2px 10px;font-size:12px;margin-right:8px">Filters clear</button>Total rows: <span id="vc">'+v.n+'</span> / <span id="vt">'+db.sites.length+'</span> &nbsp;|&nbsp; <span style="display:inline-block;background:#FFE27A;border:2px solid #E6B800;border-radius:10px;padding:5px 12px;font-size:17px;font-weight:900;color:#111">Total Variance: <span id="vvar">'+Math.round(v.totalVar)+'</span> L</span></div>'+
+    '<div class="small" style="margin-bottom:6px"><button onclick="clearFilters()" style="min-height:26px;padding:2px 10px;font-size:12px;margin-right:8px">Filters clear</button>Total rows: <span id="vc">'+v.n+'</span> / <span id="vt">'+db.sites.length+'</span> &nbsp;|&nbsp; <span style="display:inline-block;background:#FFE27A;border:2px solid #E6B800;border-radius:10px;padding:5px 12px;font-size:17px;font-weight:900;color:#111">Total Variance: <span id="vvar">'+Math.round(v.totalVar)+'</span> L</span> &nbsp; <button id="viewerJpegBtn" class="g" onclick="exportViewerJpeg()" style="display:'+(hasF?'':'none')+'">Download JPEG (filtered)</button></div>'+
     '<div class="tw vw fit"><table>'+cg(VCOLS.map(function(c){return c[0];}))+'<thead>'+head+'</thead><tbody id="vb">'+v.html+'</tbody></table></div>';
+}
+function hasViewerFilter(){
+  for(var k in filters){ if(filters[k]) return true; }
+  if(typeof vq!=='undefined'&&vq&&vq.trim()) return true;
+  return false;
 }
 function refreshViewer(){
   var b=document.getElementById('vb'); if(!b){ render(); return; }
@@ -675,7 +681,52 @@ function refreshViewer(){
   b.innerHTML=v.html;
   document.getElementById('vc').textContent=v.n;
   document.getElementById('vt').textContent=db.sites.length;
-  var vv=document.getElementById('vvar'); if(vv) vv.textContent=v.totalVar;
+  var vv=document.getElementById('vvar'); if(vv) vv.textContent=Math.round(v.totalVar);
+  var jb=document.getElementById('viewerJpegBtn'); if(jb) jb.style.display=hasViewerFilter()?'':'none';
+}
+function exportViewerJpeg(){
+  var v=viewerBody(), rows=v.rows||[];
+  if(!rows.length){ alert('Export karne ko koi row nahi hai.'); return; }
+  var cols=[{h:'Site ID',w:150},{h:'Site Name',w:230},{h:'Card No',w:190},{h:'Fuel Sensor Stock',w:150},{h:'Current Stock (SNMP)',w:170},{h:'Variance',w:110},{h:'Technician Name',w:180}];
+  var pad=24, rh=36, hh=42, titleH=110;
+  var W=pad*2; cols.forEach(function(c){ W+=c.w; });
+  var H=titleH+hh+rows.length*rh+46;
+  var cv=document.createElement('canvas'); cv.width=W; cv.height=H;
+  var x=cv.getContext('2d');
+  x.fillStyle='#ffffff'; x.fillRect(0,0,W,H);
+  x.fillStyle='#0F0F14'; x.fillRect(0,0,W,78);
+  x.fillStyle='#FFC107'; x.font='900 34px Georgia, serif'; x.textAlign='center';
+  x.fillText('VR ONE', W/2, 38);
+  x.fillStyle='#F5EEDD'; x.font='700 13px Arial'; x.fillText('ENERGY DEPARTMENT  •  STOCK OVERVIEW', W/2, 62);
+  x.fillStyle='#1C1C22'; x.font='600 13px Arial'; x.textAlign='left';
+  x.fillText('Stock Date: '+fmtStockDate(db.stockDate), pad, 100);
+  x.textAlign='right'; x.fillText('Total Sites: '+rows.length, W-pad, 100); x.textAlign='left';
+  var y=titleH, cx=pad;
+  x.fillStyle='#111111'; x.fillRect(pad, y, W-pad*2, hh);
+  x.fillStyle='#ffffff'; x.font='700 13px Arial';
+  cols.forEach(function(c){ x.fillText(c.h, cx+8, y+26); cx+=c.w; });
+  y+=hh;
+  rows.forEach(function(s,idx){
+    if(idx%2===1){ x.fillStyle='#F5F5F0'; x.fillRect(pad, y, W-pad*2, rh); }
+    var vv2=varianceOf(s), hasFs=!isNaN(parseFloat(s.stock)), hasSn=!isNaN(parseFloat(s.cur));
+    var vals=[s.indus, s.site, s.card, s.stock, s.cur, vv2, firstName(s.tech)];
+    var cx2=pad;
+    vals.forEach(function(val,ci){
+      // Variance 5 se zyada + dono taraf value ho to JPEG me bhi laal
+      x.fillStyle=(ci===5&&hasFs&&hasSn&&vv2>5)?'#D80000':'#111111';
+      x.font=(ci===5&&hasFs&&hasSn&&vv2>5)?'800 13px Arial':'400 13px Arial';
+      var txt=String(val==null?'':val);
+      if(txt.length>28) txt=txt.slice(0,27)+'..';
+      x.fillText(txt, cx2+8, y+23); cx2+=cols[ci].w;
+    });
+    x.strokeStyle='#E5E5E0'; x.beginPath(); x.moveTo(pad, y+rh); x.lineTo(W-pad, y+rh); x.stroke();
+    y+=rh;
+  });
+  x.fillStyle='#111111'; x.font='700 15px Arial';
+  x.fillText('Total Variance: '+Math.round(v.totalVar)+' L', pad, y+28);
+  var a=document.createElement('a');
+  a.href=cv.toDataURL('image/jpeg', 0.92);
+  a.download='VR-ONE-stock-filtered-'+(db.stockDate||'report')+'.jpeg'; a.click();
 }
 function techVisOf(tech){ if(!db.techVis) db.techVis={}; if(db.techVis[tech]===undefined) return 1; return db.techVis[tech]?1:0; }
 function setTechVis(tech,v){ if(!db.techVis) db.techVis={}; db.techVis[tech]=v?1:0; save(); render(); }
